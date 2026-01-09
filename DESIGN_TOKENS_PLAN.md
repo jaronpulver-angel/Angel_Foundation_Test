@@ -2,53 +2,50 @@
 
 ## Executive Summary
 
-This plan establishes a **single source of truth** for design tokens in Figma that automatically syncs to GitHub and generates platform-specific outputs for React Native, TV apps, and React web applications.
+This plan establishes a **single source of truth** for design tokens in Figma that syncs to GitHub via manual export and generates platform-specific outputs for React Native, TV apps, and React web applications.
+
+**Cost: $0** - Uses free Figma plugins and open-source tools.
 
 ---
 
 ## Architecture Overview
 
 ```
-┌─────────────────┐     Tokens Studio Plugin      ┌──────────────────┐
-│                 │  ──────────────────────────►  │                  │
-│     FIGMA       │     (Push on Publish)         │     GITHUB       │
-│  Design Tokens  │  ◄──────────────────────────  │   tokens/*.json  │
-│   & Variables   │     (Pull on PR Merge)        │                  │
-└─────────────────┘                               └────────┬─────────┘
-                                                           │
-                                                  GitHub Actions
-                                                  (Style Dictionary)
-                                                           │
-                    ┌──────────────────────────────────────┼──────────────────────────────────────┐
-                    │                                      │                                      │
-                    ▼                                      ▼                                      ▼
-         ┌──────────────────┐                   ┌──────────────────┐                   ┌──────────────────┐
-         │   REACT NATIVE   │                   │    WEB (REACT)   │                   │     TV APPS      │
-         │                  │                   │                  │                   │                  │
-         │ • TypeScript     │                   │ • CSS Variables  │                   │ • TypeScript     │
-         │ • React Native   │                   │ • SCSS Variables │                   │ • Platform CSS   │
-         │   StyleSheet     │                   │ • JS/TS Objects  │                   │ • TV-specific    │
-         └──────────────────┘                   └──────────────────┘                   └──────────────────┘
+┌─────────────────┐                              ┌──────────────────┐
+│                 │     1. Export JSON           │                  │
+│     FIGMA       │     (Free Plugin)            │     GITHUB       │
+│  Design Tokens  │  ─────────────────────────►  │   tokens/*.json  │
+│   & Variables   │     2. Manual Upload (PR)    │                  │
+└─────────────────┘                              └────────┬─────────┘
+                                                          │
+                                                 3. GitHub Actions
+                                                 (Style Dictionary)
+                                                          │
+                   ┌──────────────────────────────────────┼──────────────────────────────────────┐
+                   │                                      │                                      │
+                   ▼                                      ▼                                      ▼
+        ┌──────────────────┐                   ┌──────────────────┐                   ┌──────────────────┐
+        │   REACT NATIVE   │                   │    WEB (REACT)   │                   │     TV APPS      │
+        │                  │                   │                  │                   │                  │
+        │ • TypeScript     │                   │ • CSS Variables  │                   │ • TypeScript     │
+        │ • React Native   │                   │ • SCSS Variables │                   │ • Platform CSS   │
+        │   StyleSheet     │                   │ • JS/TS Objects  │                   │ • TV-specific    │
+        └──────────────────┘                   └──────────────────┘                   └──────────────────┘
 ```
 
 ---
 
-## Recommended Approach: Tokens Studio + Style Dictionary
+## Tool Stack (100% Free)
 
-After researching the available options, I recommend this stack:
+| Component | Tool | Cost |
+|-----------|------|------|
+| **Figma Plugin** | [Design Tokens (W3C) Export](https://www.figma.com/community/plugin/1377982390646186215/design-tokens-w3c-export) | Free |
+| **Token Format** | [W3C Design Tokens](https://design-tokens.github.io/community-group/format/) | N/A |
+| **Transformation** | [Style Dictionary](https://styledictionary.com/) | Free (OSS) |
+| **Automation** | GitHub Actions | Free |
+| **Figma Plan** | Organization (Angel Studios) | Already have |
 
-| Component | Tool | Why |
-|-----------|------|-----|
-| **Figma Plugin** | [Tokens Studio](https://tokens.studio/) | Industry standard, 264k+ users, native GitHub sync, bi-directional support |
-| **Token Format** | [W3C Design Tokens](https://design-tokens.github.io/community-group/format/) | Future-proof, standardized, broad tool support |
-| **Transformation** | [Style Dictionary](https://styledictionary.com/) | Multi-platform output, highly extensible, well-documented |
-| **Automation** | GitHub Actions | Native integration, Figma webhooks support, free for public repos |
-
-### Why NOT Figma's Native Variables API Alone?
-
-- Requires **Enterprise plan** for full sync capabilities
-- No built-in change management or PR workflow
-- Tokens Studio provides better developer experience and branching support
+**Total additional cost: $0**
 
 ---
 
@@ -57,30 +54,22 @@ After researching the available options, I recommend this stack:
 ### Recommended Monorepo Structure
 
 ```
-angel-foundation/
+angel-design-system/
 ├── .github/
 │   └── workflows/
-│       ├── sync-tokens-from-figma.yml    # Triggered by Figma webhook
-│       ├── sync-tokens-to-figma.yml      # Triggered on PR merge
-│       └── build-tokens.yml              # Transform tokens for all platforms
+│       └── build-tokens.yml              # Transform tokens on push
 │
 ├── packages/
-│   ├── tokens/                           # Source of truth (synced from Figma)
+│   ├── tokens/                           # Source of truth (uploaded from Figma)
 │   │   ├── tokens/
-│   │   │   ├── core/
-│   │   │   │   ├── colors.json
-│   │   │   │   ├── typography.json
-│   │   │   │   ├── spacing.json
-│   │   │   │   └── shadows.json
-│   │   │   ├── semantic/
-│   │   │   │   ├── colors.json           # References core tokens
-│   │   │   │   └── components.json
+│   │   │   ├── colors.json
+│   │   │   ├── typography.json
+│   │   │   ├── spacing.json
+│   │   │   ├── shadows.json
 │   │   │   └── themes/
 │   │   │       ├── light.json
 │   │   │       └── dark.json
-│   │   ├── $themes.json                  # Tokens Studio themes config
-│   │   ├── $metadata.json                # Tokens Studio metadata
-│   │   ├── style-dictionary.config.js
+│   │   ├── style-dictionary.config.mjs
 │   │   └── package.json
 │   │
 │   ├── tokens-react-native/              # Generated RN tokens
@@ -102,108 +91,163 @@ angel-foundation/
 │   └── tokens-tv/                        # Generated TV app tokens
 │       ├── src/
 │       │   ├── tokens.ts
-│       │   ├── focus-states.ts           # TV-specific focus styling
 │       │   └── index.ts
 │       └── package.json
 │
-├── apps/
-│   ├── mobile/                           # React Native app
-│   ├── web/                              # React web app
-│   └── tv/                               # TV app (Roku, Apple TV, etc.)
-│
 ├── package.json                          # Workspace root
-├── turbo.json                            # Turborepo config (optional)
 └── pnpm-workspace.yaml                   # pnpm workspaces
 ```
 
 ---
 
-## Phase 2: Figma Setup with Tokens Studio
+## Phase 2: Figma Setup (Free Plugin)
 
-### Step 2.1: Install Tokens Studio Plugin
+### Recommended Plugin: Design Tokens (W3C) Export
 
-1. Open your Figma design file
-2. Go to **Plugins → Browse plugins**
-3. Search for **"Tokens Studio for Figma"**
-4. Install and run the plugin
+**Install:** [Design Tokens (W3C) Export](https://www.figma.com/community/plugin/1377982390646186215/design-tokens-w3c-export)
 
-### Step 2.2: Configure GitHub Sync
+This free plugin exports Figma Variables to W3C Design Tokens format JSON.
 
-In Tokens Studio plugin:
+### Alternative Free Plugins
 
-1. Click **Settings** (gear icon)
-2. Select **Add new sync provider → GitHub**
-3. Configure:
-   - **Personal Access Token**: Generate at github.com/settings/tokens with `repo` scope
-   - **Repository**: `your-org/angel-foundation`
-   - **Branch**: `main` (or create a `design-tokens` branch)
-   - **Token folder**: `packages/tokens/tokens`
-   - **File format**: `Multiple files` (recommended for better diffs)
+| Plugin | Output Format | Notes |
+|--------|---------------|-------|
+| [Design Tokens (W3C) Export](https://www.figma.com/community/plugin/1377982390646186215) | W3C JSON | Recommended - standard format |
+| [Figma Variables to JSON](https://www.figma.com/community/plugin/1345399750040406570) | JSON | All variable types |
+| [Design Tokens Manager](https://www.figma.com/community/plugin/1263743870981744253) | W3C JSON | Manifest support |
+| [Token Export](https://www.figma.com/community/plugin/1318612019979212772) | W3C JSON | Selective export |
 
-### Step 2.3: Structure Your Tokens in Figma
+### How to Export Tokens from Figma
 
-Organize token sets in Tokens Studio:
+1. Open your Figma design file with Variables defined
+2. Run the plugin: **Plugins → Design Tokens (W3C) Export**
+3. Select the Variable Collections to export
+4. Click **Export** - downloads a `.zip` file with JSON files
+5. Extract the JSON files
+
+### Organizing Variables in Figma
+
+Structure your Figma Variables in Collections:
 
 ```
-📁 core/
-   ├── 🎨 colors          # Primitive colors (blue-500, gray-100, etc.)
-   ├── 📝 typography      # Font families, sizes, weights
-   ├── 📏 spacing         # 4, 8, 12, 16, 24, 32, 48, 64
-   └── 🌑 shadows         # Elevation levels
+📁 Variable Collections in Figma:
 
-📁 semantic/
-   ├── 🎨 colors          # background.primary, text.primary, etc.
-   └── 🧩 components      # button.padding, card.radius, etc.
-
-📁 themes/
-   ├── ☀️ light           # Light theme overrides
-   └── 🌙 dark            # Dark theme overrides
+├── 🎨 Colors
+│   ├── primitive/blue-500: #3B82F6
+│   ├── primitive/gray-100: #F3F4F6
+│   ├── semantic/background-primary: {primitive/white}
+│   └── semantic/text-primary: {primitive/gray-900}
+│
+├── 📏 Spacing
+│   ├── xs: 4
+│   ├── sm: 8
+│   ├── md: 16
+│   ├── lg: 24
+│   └── xl: 32
+│
+├── 📝 Typography
+│   ├── font-size/sm: 14
+│   ├── font-size/base: 16
+│   ├── font-size/lg: 18
+│   └── line-height/normal: 1.5
+│
+└── 🌑 Shadows
+    ├── sm: 0 1px 2px rgba(0,0,0,0.05)
+    └── md: 0 4px 6px rgba(0,0,0,0.1)
 ```
 
 ---
 
-## Phase 3: Style Dictionary Configuration
+## Phase 3: Manual Upload Workflow
 
-### Step 3.1: Token Transformation Config
+### Designer Workflow (Step-by-Step)
 
-Create `packages/tokens/style-dictionary.config.js`:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  DESIGNER WORKFLOW                                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. Make changes to Variables in Figma                          │
+│                    │                                            │
+│                    ▼                                            │
+│  2. Run "Design Tokens (W3C) Export" plugin                     │
+│                    │                                            │
+│                    ▼                                            │
+│  3. Download .zip file with JSON tokens                         │
+│                    │                                            │
+│                    ▼                                            │
+│  4. Go to GitHub repo → packages/tokens/tokens/                 │
+│                    │                                            │
+│                    ▼                                            │
+│  5. Click "Add file" → "Upload files"                           │
+│     OR create a branch and PR via GitHub Desktop                │
+│                    │                                            │
+│                    ▼                                            │
+│  6. Replace existing JSON files with new exports                │
+│                    │                                            │
+│                    ▼                                            │
+│  7. Create Pull Request with description of changes             │
+│                    │                                            │
+│                    ▼                                            │
+│  8. GitHub Actions automatically builds platform tokens         │
+│                    │                                            │
+│                    ▼                                            │
+│  9. Developer reviews and merges PR                             │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Quick Upload via GitHub Web UI
+
+1. Navigate to `packages/tokens/tokens/` in the GitHub repo
+2. Click **Add file → Upload files**
+3. Drag and drop the exported JSON files
+4. Add commit message: "Update design tokens from Figma"
+5. Select **Create a new branch and start a pull request**
+6. Submit the PR
+
+---
+
+## Phase 4: Style Dictionary Configuration
+
+### Token Transformation Config
+
+`packages/tokens/style-dictionary.config.mjs`:
 
 ```javascript
-const StyleDictionary = require('style-dictionary');
-const { registerTransforms } = require('@tokens-studio/sd-transforms');
-
-// Register Tokens Studio transforms
-registerTransforms(StyleDictionary);
-
-module.exports = {
+export default {
   source: ['tokens/**/*.json'],
   platforms: {
     // React Native output
     'react-native': {
-      transformGroup: 'tokens-studio',
+      transformGroup: 'js',
       buildPath: '../tokens-react-native/src/',
       files: [
         {
           destination: 'colors.ts',
           format: 'javascript/es6',
-          filter: { type: 'color' }
+          filter: (token) => token.type === 'color'
         },
         {
           destination: 'typography.ts',
           format: 'javascript/es6',
-          filter: { type: 'typography' }
+          filter: (token) => token.type === 'typography' || token.type === 'fontSizes' || token.type === 'fontWeights'
         },
         {
           destination: 'spacing.ts',
           format: 'javascript/es6',
-          filter: { type: 'spacing' }
+          filter: (token) => token.type === 'spacing' || token.type === 'dimension'
+        },
+        {
+          destination: 'index.ts',
+          format: 'javascript/es6'
         }
       ]
     },
 
     // Web CSS Variables
     'web-css': {
-      transformGroup: 'tokens-studio',
+      transformGroup: 'css',
       buildPath: '../tokens-web/src/',
       files: [
         {
@@ -218,11 +262,11 @@ module.exports = {
 
     // Web SCSS Variables
     'web-scss': {
-      transformGroup: 'tokens-studio',
+      transformGroup: 'scss',
       buildPath: '../tokens-web/src/',
       files: [
         {
-          destination: 'variables.scss',
+          destination: '_variables.scss',
           format: 'scss/variables'
         }
       ]
@@ -230,7 +274,7 @@ module.exports = {
 
     // Web TypeScript
     'web-ts': {
-      transformGroup: 'tokens-studio',
+      transformGroup: 'js',
       buildPath: '../tokens-web/src/',
       files: [
         {
@@ -240,9 +284,9 @@ module.exports = {
       ]
     },
 
-    // TV Apps (larger touch targets, focus states)
+    // TV Apps
     'tv': {
-      transformGroup: 'tokens-studio',
+      transformGroup: 'js',
       buildPath: '../tokens-tv/src/',
       files: [
         {
@@ -255,30 +299,28 @@ module.exports = {
 };
 ```
 
-### Step 3.2: Package Dependencies
+### Package Configuration
 
 `packages/tokens/package.json`:
 
 ```json
 {
-  "name": "@angel-foundation/tokens",
+  "name": "@angel/tokens",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "build": "style-dictionary build",
-    "build:watch": "style-dictionary build --watch"
+    "build": "style-dictionary build --config style-dictionary.config.mjs",
+    "build:watch": "style-dictionary build --config style-dictionary.config.mjs --watch"
   },
   "devDependencies": {
-    "style-dictionary": "^4.0.0",
-    "@tokens-studio/sd-transforms": "^1.0.0"
+    "style-dictionary": "^4.2.0"
   }
 }
 ```
 
 ---
 
-## Phase 4: GitHub Actions Automation
-
-### Step 4.1: Build Tokens on Push
+## Phase 5: GitHub Actions (Automated Build)
 
 `.github/workflows/build-tokens.yml`:
 
@@ -289,6 +331,8 @@ on:
   push:
     paths:
       - 'packages/tokens/tokens/**'
+    branches:
+      - main
   pull_request:
     paths:
       - 'packages/tokens/tokens/**'
@@ -297,95 +341,57 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Build tokens
-        run: pnpm --filter @angel-foundation/tokens build
+        run: pnpm --filter @angel/tokens build
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-tokens
+          path: |
+            packages/tokens-react-native/src/
+            packages/tokens-web/src/
+            packages/tokens-tv/src/
+
+      # Only commit on main branch pushes (not PRs)
       - name: Commit generated files
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add packages/tokens-*/src/
-          git diff --staged --quiet || git commit -m "chore: regenerate platform tokens"
+          git diff --staged --quiet || git commit -m "chore: regenerate platform tokens from Figma export"
           git push
-```
-
-### Step 4.2: Figma Webhook Integration (Advanced)
-
-For automatic sync when designers publish in Figma:
-
-`.github/workflows/sync-tokens-from-figma.yml`:
-
-```yaml
-name: Sync Tokens from Figma
-
-on:
-  repository_dispatch:
-    types: [figma-tokens-updated]
-
-jobs:
-  sync:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      # Tokens Studio handles the sync via plugin
-      # This workflow just builds after sync
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build tokens
-        run: pnpm --filter @angel-foundation/tokens build
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          title: '🎨 Design token updates from Figma'
-          commit-message: 'chore: sync design tokens from Figma'
-          branch: design-tokens/auto-sync
-          body: |
-            ## Design Token Updates
-
-            This PR contains automated design token updates from Figma.
-
-            ### Changes
-            - Updated token values from Figma Variables
-            - Regenerated platform-specific outputs
-
-            ### Review Checklist
-            - [ ] Verify color changes render correctly
-            - [ ] Check typography changes across platforms
-            - [ ] Test spacing/layout changes
 ```
 
 ---
 
-## Phase 5: Platform Integration
+## Phase 6: Platform Integration
 
-### React Native Integration
+### React Native
 
 `apps/mobile/src/theme/index.ts`:
 
 ```typescript
-import * as colors from '@angel-foundation/tokens-react-native/colors';
-import * as typography from '@angel-foundation/tokens-react-native/typography';
-import * as spacing from '@angel-foundation/tokens-react-native/spacing';
+import * as colors from '@angel/tokens-react-native/colors';
+import * as typography from '@angel/tokens-react-native/typography';
+import * as spacing from '@angel/tokens-react-native/spacing';
 
 export const theme = {
   colors,
@@ -396,82 +402,39 @@ export const theme = {
 export type Theme = typeof theme;
 ```
 
-### React Web Integration
+### React Web
 
 `apps/web/src/styles/global.css`:
 
 ```css
-@import '@angel-foundation/tokens-web/variables.css';
+@import '@angel/tokens-web/variables.css';
 
-:root {
-  /* Tokens are now available as CSS custom properties */
-  /* --color-primary, --spacing-md, etc. */
-}
+/* Tokens now available as CSS custom properties */
+/* var(--color-primary), var(--spacing-md), etc. */
 ```
 
-### TV App Integration
-
-`apps/tv/src/theme/index.ts`:
+Or with TypeScript:
 
 ```typescript
-import * as tokens from '@angel-foundation/tokens-tv';
+import { tokens } from '@angel/tokens-web';
+
+const styles = {
+  color: tokens.colorPrimary,
+  padding: tokens.spacingMd,
+};
+```
+
+### TV Apps
+
+```typescript
+import { tokens } from '@angel/tokens-tv';
 
 // TV-specific adjustments for 10-foot experience
 export const tvTheme = {
   ...tokens,
-  // Override for larger screens
-  focusRing: {
-    width: 4,
-    color: tokens.colorPrimary,
-  },
-  // Larger touch/focus targets
-  minimumTouchTarget: 48,
+  focusRingWidth: 4,
+  minimumFocusTarget: 48,
 };
-```
-
----
-
-## Phase 6: Workflow Summary
-
-### Designer Workflow
-
-1. **Edit tokens** in Figma using Tokens Studio plugin
-2. **Push changes** to GitHub directly from the plugin
-3. **Create PR** for review (or auto-create via webhook)
-4. **Merge PR** after developer review
-
-### Developer Workflow
-
-1. **Pull latest** from main branch
-2. **Install dependencies** - token packages auto-update
-3. **Import tokens** in platform-specific format
-4. **Build app** - tokens are type-safe and consistent
-
-### Sync Flow Diagram
-
-```
-Designer updates in Figma
-         │
-         ▼
-Tokens Studio "Push" to GitHub
-         │
-         ▼
-GitHub receives token JSON files
-         │
-         ▼
-GitHub Action triggers on push
-         │
-         ▼
-Style Dictionary transforms tokens
-         │
-         ▼
-Generated files committed to repo
-         │
-         ▼
-Apps pull latest / CI builds
-         │
-         ▼
-All platforms updated consistently
 ```
 
 ---
@@ -479,86 +442,101 @@ All platforms updated consistently
 ## Implementation Checklist
 
 ### Phase 1: Initial Setup
-- [ ] Create monorepo structure
+- [ ] Create repository structure
 - [ ] Initialize pnpm workspace
-- [ ] Set up packages/tokens directory
-- [ ] Add Style Dictionary dependencies
+- [ ] Set up `packages/tokens` directory
+- [ ] Add Style Dictionary dependency
 
-### Phase 2: Figma Integration
-- [ ] Install Tokens Studio in Figma
-- [ ] Configure GitHub sync provider
-- [ ] Create initial token structure
-- [ ] Push first token set
+### Phase 2: Figma Setup
+- [ ] Install "Design Tokens (W3C) Export" plugin in Figma
+- [ ] Organize Variables in Collections
+- [ ] Test export to JSON
 
 ### Phase 3: Build Pipeline
 - [ ] Create Style Dictionary config
 - [ ] Add build scripts
-- [ ] Set up GitHub Actions
-- [ ] Test token generation
+- [ ] Set up GitHub Actions workflow
+- [ ] Test token generation locally
 
 ### Phase 4: Platform Packages
-- [ ] Create tokens-react-native package
-- [ ] Create tokens-web package
-- [ ] Create tokens-tv package
-- [ ] Add TypeScript types
+- [ ] Create `tokens-react-native` package
+- [ ] Create `tokens-web` package
+- [ ] Create `tokens-tv` package
+- [ ] Test imports in each platform
 
-### Phase 5: App Integration
-- [ ] Integrate tokens in React Native app
-- [ ] Integrate tokens in web app
-- [ ] Integrate tokens in TV app
-- [ ] Test all platforms
-
-### Phase 6: Advanced Features
-- [ ] Set up Figma webhooks for auto-sync
-- [ ] Add token documentation generation
-- [ ] Create visual regression tests
-- [ ] Add token change notifications
+### Phase 5: First Manual Sync
+- [ ] Export tokens from Figma
+- [ ] Upload to GitHub via PR
+- [ ] Verify GitHub Action runs
+- [ ] Check generated outputs
 
 ---
 
-## Cost Considerations
+## Future Enhancements (Phase 2)
 
-| Tool | Cost | Notes |
-|------|------|-------|
-| Tokens Studio | Free (basic) / $8/mo (Pro) | Pro needed for multi-file sync |
-| Style Dictionary | Free | Open source |
-| GitHub Actions | Free | For public repos |
-| Figma | Team/Enterprise | You likely already have this |
+Once this manual workflow is proven, we can add:
 
-**Recommendation**: Start with Tokens Studio Pro ($8/month) for multi-file sync capability.
+| Enhancement | Approach | Effort |
+|-------------|----------|--------|
+| **Auto-sync from Figma** | Custom Figma plugin + webhook | Medium |
+| **Slack notifications** | GitHub Action on token changes | Low |
+| **Visual diff preview** | Generate before/after screenshots | Medium |
+| **Token documentation** | Auto-generate docs site | Medium |
+| **Version tagging** | Semantic versioning for tokens | Low |
 
----
+### Custom Plugin Option (Future)
 
-## Alternatives Considered
+If manual upload becomes painful, I can help build a custom Figma plugin that:
+1. Exports Variables using Plugin API (free, works on Organization plan)
+2. Sends JSON directly to a webhook endpoint
+3. Webhook triggers GitHub Actions to create a PR
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| **Figma Variables API Only** | Native Figma | Enterprise only, no branching |
-| **Supernova** | Full-featured | Expensive, vendor lock-in |
-| **Specify** | Modern, good DX | Additional SaaS dependency |
-| **Zeroheight** | Good docs integration | Less flexible transforms |
-| **Custom Scripts** | Full control | Maintenance burden |
+This would give you automation without Enterprise pricing.
 
 ---
 
-## Next Steps
+## Workflow Summary
 
-Once you approve this plan, I can help you:
+### Current (Manual) Flow
 
-1. **Set up the repository structure** with all the necessary files
-2. **Create the Style Dictionary configuration** with platform-specific transforms
-3. **Configure GitHub Actions** for automated builds
-4. **Generate starter token files** matching the W3C Design Tokens spec
+```
+Designer edits Variables in Figma
+              │
+              ▼
+Run free export plugin
+              │
+              ▼
+Download JSON zip file
+              │
+              ▼
+Upload to GitHub via PR
+              │
+              ▼
+GitHub Action builds platform tokens
+              │
+              ▼
+Developer reviews & merges PR
+              │
+              ▼
+All platforms get updated tokens
+```
 
-Would you like me to proceed with implementation?
+### Time Estimate Per Update
+
+| Step | Time |
+|------|------|
+| Export from Figma | ~30 seconds |
+| Upload to GitHub | ~1-2 minutes |
+| GitHub Action build | ~1 minute |
+| PR review & merge | ~5 minutes |
+| **Total** | **~8 minutes per update** |
 
 ---
 
 ## Sources
 
-- [Figma Variables GitHub Action Example](https://github.com/figma/variables-github-action-example)
-- [Tokens Studio - GitHub Sync Documentation](https://docs.tokens.studio/token-storage/remote/sync-git-github)
-- [Tokens Studio Official Site](https://tokens.studio/)
-- [Style Dictionary Examples](https://styledictionary.com/getting-started/examples/)
+- [Design Tokens (W3C) Export Plugin](https://www.figma.com/community/plugin/1377982390646186215/design-tokens-w3c-export)
 - [W3C Design Tokens Specification](https://design-tokens.github.io/community-group/format/)
-- [Synchronizing Figma Variables with Design Tokens](https://medium.com/@NateBaldwin/synchronizing-figma-variables-with-design-tokens-3a6c6adbf7da)
+- [Style Dictionary Documentation](https://styledictionary.com/)
+- [Figma Variables to JSON Plugin](https://www.figma.com/community/plugin/1345399750040406570/figma-variables-to-json)
+- [Figma Plugin API - Working with Variables](https://developers.figma.com/docs/plugins/working-with-variables/)
