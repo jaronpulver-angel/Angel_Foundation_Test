@@ -22,6 +22,139 @@ This plan establishes a **single source of truth** for design tokens in Figma th
 
 ---
 
+## 🚀 Developer Quick Start: Which Package Do I Use?
+
+### Find Your Package in 10 Seconds
+
+| If you're building for... | Install this package | Import like this |
+|---------------------------|---------------------|------------------|
+| **React Native** (iOS/Android mobile) | `@angel/tokens-react-native` | `import { colors, typography, spacing } from '@angel/tokens-react-native'` |
+| **React Web** | `@angel/tokens-web` | `import '@angel/tokens-web/variables.css'` or `import { tokens } from '@angel/tokens-web'` |
+| **Roku** | Copy `tokens-roku/src/` to project | `tokens = AngelTokens()` in BrightScript |
+| **Apple tvOS** | Swift Package `AngelTokens` | `import AngelTokens` then use `Color.Angel.primary` |
+| **Android Fire TV** | Gradle dependency | `@color/angel_primary` in XML or `AngelTokens.Colors.Primary` in Compose |
+| **Xbox** | NuGet package `AngelTokens` | `{StaticResource AngelPrimaryBrush}` in XAML |
+| **Vizio SmartCast** | `@angel/tokens-web-tv` | `import '@angel/tokens-web-tv/variables.css'` |
+| **XumoTV** | `@angel/tokens-web-tv` | `import '@angel/tokens-web-tv/variables.css'` |
+
+### What's in Each Package?
+
+Every platform package contains these token categories:
+
+| Category | What it includes | Mobile/Web | TV Platforms |
+|----------|------------------|------------|--------------|
+| **Colors** | Brand, semantic, component colors | ✅ | ✅ |
+| **Typography** | Font families, sizes, weights, line heights | ✅ | ✅ (scaled 1.5x for 10-foot) |
+| **Spacing** | Padding, margins, gaps | ✅ | ✅ (scaled for TV) |
+| **Sizing** | Component heights, widths | ✅ | ✅ |
+| **Layout** | Grid, containers | ✅ | ✅ + TV-specific |
+| **Focus** | Focus rings, states | Basic | ✅ **Critical for D-pad** |
+| **Safe Areas** | Screen edge insets | - | ✅ **TV overscan** |
+| **Component Dimensions** | Cards, rows, buttons | ✅ | ✅ **Row heights, card sizes** |
+
+---
+
+## 📺 TV Developer Guide: Heights, Rows & Components
+
+### Why TV is Different
+
+TV apps use **heights** and **fixed dimensions** more than padding because:
+- D-pad navigation requires predictable focus targets
+- 10-foot viewing distance needs larger, consistent UI elements
+- Row-based layouts (like Netflix) need exact row heights
+- Focus states must be visually prominent
+
+### TV-Specific Token Categories
+
+```
+TV TOKENS STRUCTURE
+├── colors/              # Same as mobile but optimized for TV contrast
+├── typography/          # 1.5x scaled for 10-foot viewing
+├── spacing/             # Larger values for TV layouts
+│
+├── 📺 layout/           # TV-SPECIFIC
+│   ├── rowHeight        # Standard content row height
+│   ├── rowHeightLarge   # Featured/hero row height
+│   ├── rowHeightSmall   # Compact row height
+│   ├── rowGap           # Space between rows
+│   ├── gridColumns      # Number of items per row
+│   └── sideNavWidth     # Left navigation width
+│
+├── 📺 components/       # TV-SPECIFIC COMPONENT SIZES
+│   ├── card/
+│   │   ├── width        # Standard card width
+│   │   ├── height       # Standard card height (16:9, poster, etc.)
+│   │   ├── widthLarge   # Featured card width
+│   │   ├── heightLarge  # Featured card height
+│   │   └── borderRadius # Card corner radius
+│   ├── button/
+│   │   ├── height       # Minimum button height (48px+ for focus)
+│   │   ├── minWidth     # Minimum button width
+│   │   └── paddingX     # Horizontal padding
+│   ├── thumbnail/
+│   │   ├── width        # Video thumbnail width
+│   │   └── height       # Video thumbnail height
+│   └── hero/
+│       ├── height       # Hero banner height
+│       └── minHeight    # Minimum hero height
+│
+├── 📺 focus/            # TV-SPECIFIC FOCUS STATES
+│   ├── ringWidth        # Focus outline thickness (4px recommended)
+│   ├── ringColor        # Focus outline color
+│   ├── ringOffset       # Space between element and focus ring
+│   ├── scale            # Scale factor when focused (1.05 typical)
+│   └── shadowFocused    # Shadow when element is focused
+│
+└── 📺 safeArea/         # TV-SPECIFIC SAFE AREAS
+    ├── horizontal       # Left/right safe margin (48px typical)
+    ├── vertical         # Top/bottom safe margin (27px typical)
+    └── action           # Extra margin for interactive elements
+```
+
+### TV Row Heights (Example Values)
+
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `layout.rowHeight.sm` | 180px | Compact rows (episodes, continue watching) |
+| `layout.rowHeight.md` | 240px | Standard content rows |
+| `layout.rowHeight.lg` | 320px | Featured rows |
+| `layout.rowHeight.hero` | 480px | Hero/billboard sections |
+| `layout.rowGap` | 32px | Vertical space between rows |
+
+### TV Card Dimensions (Example Values)
+
+| Token | Value | Aspect Ratio | Use Case |
+|-------|-------|--------------|----------|
+| `components.card.poster.width` | 150px | 2:3 | Movie posters |
+| `components.card.poster.height` | 225px | 2:3 | Movie posters |
+| `components.card.landscape.width` | 320px | 16:9 | Episode thumbnails |
+| `components.card.landscape.height` | 180px | 16:9 | Episode thumbnails |
+| `components.card.square.width` | 200px | 1:1 | Categories, profiles |
+| `components.card.square.height` | 200px | 1:1 | Categories, profiles |
+| `components.card.featured.width` | 480px | 16:9 | Featured content |
+| `components.card.featured.height` | 270px | 16:9 | Featured content |
+
+### TV Focus States (Critical!)
+
+| Token | Value | Description |
+|-------|-------|-------------|
+| `focus.ringWidth` | 4px | Visible from 10 feet away |
+| `focus.ringColor` | Brand blue | Matches brand, high contrast |
+| `focus.ringOffset` | 4px | Space so ring doesn't overlap content |
+| `focus.scale` | 1.05 | Subtle zoom on focus (5%) |
+| `focus.transitionDuration` | 150ms | Snappy but smooth |
+
+### TV Safe Areas (Overscan Protection)
+
+| Token | Value | Description |
+|-------|-------|-------------|
+| `safeArea.horizontal` | 48px | Left/right edge padding |
+| `safeArea.vertical` | 27px | Top/bottom edge padding |
+| `safeArea.title` | 64px | Extra margin for title text |
+| `safeArea.action` | 90px | Extra margin for buttons near edges |
+
+---
+
 ## Architecture Overview
 
 ```
@@ -241,13 +374,46 @@ angel-design-system/
 
 ### 1. React Native (`tokens-react-native`)
 
+**Files in this package:**
+```
+tokens-react-native/
+├── src/
+│   ├── index.ts           ← IMPORT THIS - exports everything
+│   ├── colors.ts          ← Color tokens
+│   ├── typography.ts      ← Font families, sizes, weights
+│   ├── spacing.ts         ← Padding, margins, gaps
+│   └── theme.ts           ← Combined theme object
+└── fonts/
+    └── *.ttf              ← Link in react-native.config.js
+```
+
+**Installation & Setup:**
+```bash
+npm install @angel/tokens-react-native
+
+# Link fonts (React Native 0.69+)
+npx react-native-asset
+```
+
+**Usage:**
+```typescript
+// Import everything from index
+import { colors, typography, spacing } from '@angel/tokens-react-native';
+
+// Or import the combined theme
+import { theme } from '@angel/tokens-react-native';
+```
+
+**`src/index.ts`** - Main entry point
+```typescript
+export * from './colors';
+export * from './typography';
+export * from './spacing';
+export { theme } from './theme';
+```
+
 **`src/colors.ts`**
 ```typescript
-/**
- * Angel Studios Design Tokens - Colors
- * Auto-generated from Figma. Do not edit manually.
- */
-
 export const colors = {
   // Primitives
   white: '#FFFFFF',
@@ -256,7 +422,7 @@ export const colors = {
   gray100: '#F3F4F6',
   gray900: '#111827',
 
-  // Semantic
+  // Semantic - Use these in components
   backgroundPrimary: '#FFFFFF',
   backgroundSecondary: '#F3F4F6',
   textPrimary: '#111827',
@@ -267,8 +433,6 @@ export const colors = {
   buttonPrimaryBackground: '#3B82F6',
   buttonPrimaryText: '#FFFFFF',
 } as const;
-
-export type ColorToken = keyof typeof colors;
 ```
 
 **`src/typography.ts`**
@@ -294,41 +458,110 @@ export const typography = {
     normal: 1.5,
     relaxed: 1.75,
   },
-  fontWeight: {
-    regular: '400',
-    medium: '500',
-    bold: '700',
-  },
 } as const;
+```
+
+**`src/spacing.ts`**
+```typescript
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  '2xl': 48,
+} as const;
+```
+
+**Example React Native Usage:**
+```typescript
+import { colors, typography, spacing } from '@angel/tokens-react-native';
+import { StyleSheet, View, Text } from 'react-native';
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.backgroundPrimary,
+    padding: spacing.md,
+  },
+  title: {
+    color: colors.textPrimary,
+    fontFamily: typography.fontFamily.primaryBold,
+    fontSize: typography.fontSize['2xl'],
+  },
+});
+
+export const Card = () => (
+  <View style={styles.container}>
+    <Text style={styles.title}>Hello Angel</Text>
+  </View>
+);
 ```
 
 ---
 
 ### 2. React Web (`tokens-web`)
 
-**`src/variables.css`**
-```css
-/**
- * Angel Studios Design Tokens - CSS Variables
- * Auto-generated from Figma. Do not edit manually.
- */
+**Files in this package:**
+```
+tokens-web/
+├── src/
+│   ├── index.ts           ← TypeScript entry point
+│   ├── variables.css      ← IMPORT THIS for CSS custom properties
+│   ├── _variables.scss    ← IMPORT THIS for SCSS
+│   ├── tokens.ts          ← IMPORT THIS for TypeScript/JS objects
+│   └── fonts.css          ← IMPORT THIS to load fonts
+└── fonts/
+    ├── *.woff2            ← Web fonts (primary)
+    └── *.woff             ← Web fonts (fallback)
+```
 
+**Installation & Setup:**
+```bash
+npm install @angel/tokens-web
+```
+
+**Usage Options:**
+```tsx
+// Option 1: CSS Variables (recommended for most cases)
+import '@angel/tokens-web/variables.css';
+import '@angel/tokens-web/fonts.css';
+
+// Then use in CSS/styled-components:
+// background: var(--color-background-primary);
+
+// Option 2: SCSS
+@import '@angel/tokens-web/variables';
+// Then use: background: $color-background-primary;
+
+// Option 3: TypeScript/JavaScript objects
+import { tokens } from '@angel/tokens-web';
+// Then use: tokens.colors.backgroundPrimary
+```
+
+**`src/variables.css`** - CSS Custom Properties
+```css
 :root {
-  /* Colors - Primitives */
+  /* ═══════════════════════════════════════════════════════════════ */
+  /* COLORS                                                          */
+  /* ═══════════════════════════════════════════════════════════════ */
+
+  /* Primitives */
   --color-white: #FFFFFF;
   --color-black: #000000;
   --color-blue-500: #3B82F6;
   --color-gray-100: #F3F4F6;
   --color-gray-900: #111827;
 
-  /* Colors - Semantic */
+  /* Semantic - Use these in components */
   --color-background-primary: var(--color-white);
   --color-background-secondary: var(--color-gray-100);
   --color-text-primary: var(--color-gray-900);
   --color-text-secondary: #6B7280;
   --color-brand-primary: var(--color-blue-500);
 
-  /* Typography */
+  /* ═══════════════════════════════════════════════════════════════ */
+  /* TYPOGRAPHY                                                      */
+  /* ═══════════════════════════════════════════════════════════════ */
   --font-family-primary: 'Angel Sans', sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
@@ -339,7 +572,9 @@ export const typography = {
   --font-size-3xl: 1.875rem;
   --font-size-4xl: 2.25rem;
 
-  /* Spacing */
+  /* ═══════════════════════════════════════════════════════════════ */
+  /* SPACING                                                         */
+  /* ═══════════════════════════════════════════════════════════════ */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -347,12 +582,13 @@ export const typography = {
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
 
-  /* Shadows */
+  /* ═══════════════════════════════════════════════════════════════ */
+  /* SHADOWS & BORDERS                                               */
+  /* ═══════════════════════════════════════════════════════════════ */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
 
-  /* Border Radius */
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
@@ -368,9 +604,8 @@ export const typography = {
 }
 ```
 
-**`src/fonts.css`**
+**`src/fonts.css`** - Font Face Declarations
 ```css
-/* Angel Sans Font Family */
 @font-face {
   font-family: 'Angel Sans';
   src: url('./fonts/AngelSans-Regular.woff2') format('woff2'),
@@ -399,46 +634,177 @@ export const typography = {
 }
 ```
 
+**Example React Web Usage:**
+```tsx
+// In your app entry point
+import '@angel/tokens-web/variables.css';
+import '@angel/tokens-web/fonts.css';
+
+// In a component
+const Card = styled.div`
+  background: var(--color-background-primary);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+`;
+
+const Title = styled.h2`
+  color: var(--color-text-primary);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+`;
+```
+
 ---
 
 ### 3. Roku (`tokens-roku`)
 
-**`src/AngelTokens.brs`**
+**Files in this package:**
+```
+tokens-roku/
+├── src/
+│   ├── AngelTokens.brs      ← IMPORT THIS - All tokens as BrightScript
+│   ├── tokens.json          ← Alternative: JSON for dynamic loading
+│   └── README.md            ← Roku-specific usage guide
+└── fonts/
+    └── *.ttf                ← Copy to pkg:/fonts/ in your Roku project
+```
+
+**`src/AngelTokens.brs`** - Complete TV tokens for Roku
 ```brightscript
 ' Angel Studios Design Tokens - BrightScript
 ' Auto-generated from Figma. Do not edit manually.
+'
+' USAGE: tokens = AngelTokens()
+'        label.color = tokens.colors.textPrimary
+'        row.height = tokens.layout.rowHeightMd
 
 function AngelTokens() as object
     return {
+        ' ═══════════════════════════════════════════════════════════════
+        ' COLORS
+        ' ═══════════════════════════════════════════════════════════════
         colors: {
+            ' Primitives
             white: "0xFFFFFFFF"
             black: "0x000000FF"
             blue500: "0x3B82F6FF"
             gray100: "0xF3F4F6FF"
             gray900: "0x111827FF"
 
-            backgroundPrimary: "0xFFFFFFFF"
-            backgroundSecondary: "0xF3F4F6FF"
-            textPrimary: "0x111827FF"
-            textSecondary: "0x6B7280FF"
+            ' Semantic
+            backgroundPrimary: "0x111827FF"      ' Dark for TV
+            backgroundSecondary: "0x1F2937FF"
+            textPrimary: "0xFFFFFFFF"
+            textSecondary: "0x9CA3AFFF"
             brandPrimary: "0x3B82F6FF"
+
+            ' Focus
+            focusRing: "0x3B82F6FF"
+            focusBackground: "0x3B82F620"
         }
 
+        ' ═══════════════════════════════════════════════════════════════
+        ' TYPOGRAPHY (Scaled for 10-foot viewing)
+        ' ═══════════════════════════════════════════════════════════════
         typography: {
             fontFamily: "pkg:/fonts/AngelSans-Regular.ttf"
             fontFamilyMedium: "pkg:/fonts/AngelSans-Medium.ttf"
             fontFamilyBold: "pkg:/fonts/AngelSans-Bold.ttf"
 
-            fontSizeXs: 18      ' Scaled for 10-foot UI
+            fontSizeXs: 18
             fontSizeSm: 21
             fontSizeBase: 24
-            fontSizeLg: 27
-            fontSizeXl: 30
-            fontSize2xl: 36
-            fontSize3xl: 45
-            fontSize4xl: 54
+            fontSizeLg: 28
+            fontSizeXl: 32
+            fontSize2xl: 40
+            fontSize3xl: 48
+            fontSize4xl: 56
+            fontSizeHero: 72
         }
 
+        ' ═══════════════════════════════════════════════════════════════
+        ' LAYOUT - Row Heights & Grid (TV-SPECIFIC)
+        ' ═══════════════════════════════════════════════════════════════
+        layout: {
+            ' Row Heights - Use these for RowList itemSize
+            rowHeightSm: 180       ' Compact rows (episodes, continue watching)
+            rowHeightMd: 240       ' Standard content rows
+            rowHeightLg: 320       ' Featured rows
+            rowHeightHero: 480     ' Hero/billboard sections
+
+            ' Row Spacing
+            rowGap: 32             ' Vertical space between rows
+            rowPaddingLeft: 80     ' Left padding for row content
+
+            ' Grid
+            gridColumns: 7         ' Items visible per row (1920px)
+            itemGap: 16            ' Horizontal space between items
+
+            ' Navigation
+            sideNavWidth: 300      ' Left nav width when expanded
+            sideNavCollapsed: 80   ' Left nav width when collapsed
+        }
+
+        ' ═══════════════════════════════════════════════════════════════
+        ' COMPONENT DIMENSIONS - Card Sizes (TV-SPECIFIC)
+        ' ═══════════════════════════════════════════════════════════════
+        components: {
+            ' Poster Cards (2:3 aspect ratio) - Movies
+            cardPosterWidth: 150
+            cardPosterHeight: 225
+
+            ' Landscape Cards (16:9 aspect ratio) - Episodes, Shows
+            cardLandscapeWidth: 320
+            cardLandscapeHeight: 180
+
+            ' Square Cards (1:1) - Categories, Profiles
+            cardSquareWidth: 200
+            cardSquareHeight: 200
+
+            ' Featured Cards (16:9 large) - Hero items
+            cardFeaturedWidth: 480
+            cardFeaturedHeight: 270
+
+            ' Wide Cards (21:9) - Cinematic
+            cardWideWidth: 560
+            cardWideHeight: 240
+
+            ' Button dimensions
+            buttonHeight: 48
+            buttonMinWidth: 120
+            buttonPaddingX: 24
+
+            ' Thumbnails
+            thumbnailWidth: 280
+            thumbnailHeight: 158
+        }
+
+        ' ═══════════════════════════════════════════════════════════════
+        ' FOCUS STATES (Critical for D-pad navigation)
+        ' ═══════════════════════════════════════════════════════════════
+        focus: {
+            ringWidth: 4           ' Focus outline thickness
+            ringColor: "0x3B82F6FF"
+            ringOffset: 4          ' Space between element and ring
+            scale: 1.05            ' Scale factor when focused (1.05 = 5% larger)
+            transitionDuration: 0.15
+        }
+
+        ' ═══════════════════════════════════════════════════════════════
+        ' SAFE AREAS (TV overscan protection)
+        ' ═══════════════════════════════════════════════════════════════
+        safeArea: {
+            horizontal: 48         ' Left/right safe margin
+            vertical: 27           ' Top/bottom safe margin
+            title: 64              ' Extra margin for title text
+            action: 90             ' Extra margin for buttons near edges
+        }
+
+        ' ═══════════════════════════════════════════════════════════════
+        ' SPACING (General padding/margins)
+        ' ═══════════════════════════════════════════════════════════════
         spacing: {
             xs: 8
             sm: 16
@@ -447,28 +813,30 @@ function AngelTokens() as object
             xl: 48
             xxl: 64
         }
-
-        focusRing: {
-            width: 4
-            color: "0x3B82F6FF"
-        }
     }
 end function
 ```
 
-**`src/tokens.json`** (for dynamic loading)
-```json
-{
-  "colors": {
-    "backgroundPrimary": "0xFFFFFFFF",
-    "textPrimary": "0x111827FF",
-    "brandPrimary": "0x3B82F6FF"
-  },
-  "fonts": {
-    "primary": "pkg:/fonts/AngelSans-Regular.ttf",
-    "bold": "pkg:/fonts/AngelSans-Bold.ttf"
-  }
-}
+**Example Roku Usage:**
+```brightscript
+sub init()
+    tokens = AngelTokens()
+
+    ' Set up a content row with proper height
+    m.contentRow = m.top.findNode("contentRow")
+    m.contentRow.itemSize = [tokens.components.cardLandscapeWidth, tokens.layout.rowHeightMd]
+    m.contentRow.itemSpacing = [tokens.layout.itemGap, 0]
+
+    ' Style a label
+    m.titleLabel = m.top.findNode("titleLabel")
+    m.titleLabel.font.uri = tokens.typography.fontFamilyBold
+    m.titleLabel.font.size = tokens.typography.fontSize2xl
+    m.titleLabel.color = tokens.colors.textPrimary
+
+    ' Apply safe area padding
+    m.container = m.top.findNode("container")
+    m.container.translation = [tokens.safeArea.horizontal, tokens.safeArea.vertical]
+end sub
 ```
 
 ---
