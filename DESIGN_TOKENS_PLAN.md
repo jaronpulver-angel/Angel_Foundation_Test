@@ -1643,7 +1643,490 @@ jobs:
           git add packages/tokens-*/
           git diff --staged --quiet || git commit -m "chore: regenerate platform tokens from Figma export"
           git push
+
+      # ═══════════════════════════════════════════════════════════════
+      # TRIGGER APP REBUILDS (Maximum Automation)
+      # ═══════════════════════════════════════════════════════════════
+      - name: Trigger app rebuilds
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          # Trigger rebuilds for all platform apps
+          gh workflow run deploy-react-native.yml
+          gh workflow run deploy-react-web.yml
+          gh workflow run deploy-roku.yml
+          gh workflow run deploy-tvos.yml
+          gh workflow run deploy-android-tv.yml
+          gh workflow run deploy-xbox.yml
+          gh workflow run deploy-web-tv.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+---
+
+## 🚀 Maximum Automation: Auto-Deploy on Token Changes
+
+### How It Works
+
+When you update tokens in Figma and merge the PR, **all apps automatically rebuild and deploy to staging** - no developer intervention required.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        FULLY AUTOMATED FLOW                                     │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│  YOU: Change button color in Figma (black → dark gray)                          │
+│                           │                                                     │
+│                           ▼                                                     │
+│  YOU: Export tokens & upload to GitHub PR (2 min)                               │
+│                           │                                                     │
+│                           ▼                                                     │
+│  YOU: Merge PR ─────────────────────────────────────────────────────────────    │
+│                           │                                                     │
+│                           ▼                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                    AUTOMATIC (No Developer Action)                      │    │
+│  ├─────────────────────────────────────────────────────────────────────────┤    │
+│  │                                                                         │    │
+│  │  1. GitHub Action: Build tokens for all 8 platforms (~2 min)            │    │
+│  │                           │                                             │    │
+│  │                           ▼                                             │    │
+│  │  2. GitHub Action: Trigger app rebuild workflows                        │    │
+│  │                           │                                             │    │
+│  │           ┌───────────────┼───────────────┬───────────────┐             │    │
+│  │           ▼               ▼               ▼               ▼             │    │
+│  │     ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐          │    │
+│  │     │  React   │   │  React   │   │   Roku   │   │  tvOS    │          │    │
+│  │     │  Native  │   │   Web    │   │          │   │          │          │    │
+│  │     └────┬─────┘   └────┬─────┘   └────┬─────┘   └────┬─────┘          │    │
+│  │          │              │              │              │                 │    │
+│  │           ▼               ▼               ▼               ▼             │    │
+│  │     ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐          │    │
+│  │     │ Android  │   │   Xbox   │   │  Vizio   │   │  Xumo    │          │    │
+│  │     │ Fire TV  │   │          │   │          │   │          │          │    │
+│  │     └────┬─────┘   └────┬─────┘   └────┬─────┘   └────┬─────┘          │    │
+│  │          │              │              │              │                 │    │
+│  │          └──────────────┴──────────────┴──────────────┘                 │    │
+│  │                                  │                                      │    │
+│  │                                  ▼                                      │    │
+│  │  3. All apps deploy to STAGING environment (~10-15 min total)           │    │
+│  │                                                                         │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                           │                                                     │
+│                           ▼                                                     │
+│  YOU: Verify changes in staging (visual QA)                                     │
+│                           │                                                     │
+│                           ▼                                                     │
+│  YOU: Approve production deploy (or auto-promote after 24h)                     │
+│                           │                                                     │
+│                           ▼                                                     │
+│  ALL APPS LIVE WITH NEW BUTTON COLOR 🎉                                         │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Platform-Specific Deploy Workflows
+
+**`.github/workflows/deploy-react-native.yml`**
+```yaml
+name: Deploy React Native App
+
+on:
+  workflow_dispatch:  # Triggered by token build
+  workflow_call:      # Can be called from other workflows
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd apps/mobile
+          npm ci
+
+      - name: Install CocoaPods
+        run: |
+          cd apps/mobile/ios
+          pod install
+
+      - name: Build iOS (Staging)
+        run: |
+          cd apps/mobile/ios
+          xcodebuild -workspace Angel.xcworkspace \
+            -scheme Angel-Staging \
+            -configuration Release \
+            -archivePath $PWD/build/Angel.xcarchive \
+            archive
+
+      - name: Upload to TestFlight
+        run: |
+          xcrun altool --upload-app \
+            -f $PWD/build/Angel.ipa \
+            -t ios \
+            --apiKey ${{ secrets.APP_STORE_API_KEY }} \
+            --apiIssuer ${{ secrets.APP_STORE_API_ISSUER }}
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build Android (Staging)
+        run: |
+          cd apps/mobile/android
+          ./gradlew assembleStaging
+
+      - name: Upload to Play Store (Internal Track)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          packageName: com.angelstudios.app
+          releaseFiles: apps/mobile/android/app/build/outputs/apk/staging/*.apk
+          track: internal
+```
+
+**`.github/workflows/deploy-react-web.yml`**
+```yaml
+name: Deploy React Web
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install & Build
+        run: |
+          cd apps/web
+          npm ci
+          npm run build
+
+      - name: Deploy to Staging (Vercel/Netlify/AWS)
+        run: |
+          # Example: Vercel
+          npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+          # Or AWS S3 + CloudFront
+          # aws s3 sync ./dist s3://angel-staging-web --delete
+          # aws cloudfront create-invalidation --distribution-id ${{ secrets.CF_DIST_ID }} --paths "/*"
+```
+
+**`.github/workflows/deploy-roku.yml`**
+```yaml
+name: Deploy Roku App
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package Roku Channel
+        run: |
+          cd apps/roku
+          # Copy latest tokens
+          cp -r ../../packages/tokens-roku/src/* source/tokens/
+          cp -r ../../packages/tokens-roku/fonts/* fonts/
+          # Create signed package
+          zip -r angel-staging.zip . -x "*.git*"
+
+      - name: Upload to Roku Developer Dashboard
+        run: |
+          # Roku uses a web-based submission, but you can automate via API
+          curl -X POST "https://apipub.roku.com/developer/v1/channels/$CHANNEL_ID/builds" \
+            -H "Authorization: Bearer ${{ secrets.ROKU_API_KEY }}" \
+            -F "package=@angel-staging.zip" \
+            -F "environment=staging"
+```
+
+**`.github/workflows/deploy-tvos.yml`**
+```yaml
+name: Deploy tvOS App
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  deploy:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build tvOS (Staging)
+        run: |
+          cd apps/tvos
+          xcodebuild -workspace Angel.xcworkspace \
+            -scheme Angel-tvOS-Staging \
+            -destination 'platform=tvOS Simulator,name=Apple TV' \
+            -configuration Release \
+            archive -archivePath $PWD/build/Angel-tvOS.xcarchive
+
+      - name: Upload to TestFlight
+        run: |
+          xcrun altool --upload-app \
+            -f $PWD/build/Angel-tvOS.ipa \
+            -t appletvos \
+            --apiKey ${{ secrets.APP_STORE_API_KEY }} \
+            --apiIssuer ${{ secrets.APP_STORE_API_ISSUER }}
+```
+
+**`.github/workflows/deploy-android-tv.yml`**
+```yaml
+name: Deploy Android Fire TV
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build Fire TV APK
+        run: |
+          cd apps/fire-tv
+          ./gradlew assembleStaging
+
+      - name: Upload to Amazon Appstore
+        run: |
+          # Amazon has an API for submissions
+          curl -X POST "https://developer.amazon.com/api/appstore/v1/applications/$APP_ID/edits" \
+            -H "Authorization: Bearer ${{ secrets.AMAZON_API_TOKEN }}" \
+            -F "apk=@app/build/outputs/apk/staging/app-staging.apk"
+```
+
+**`.github/workflows/deploy-web-tv.yml`** (Vizio, XumoTV)
+```yaml
+name: Deploy Web TV Apps
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  deploy-vizio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Vizio App
+        run: |
+          cd apps/vizio
+          npm ci
+          npm run build
+
+      - name: Deploy to Vizio Staging
+        run: |
+          # Vizio uses hosted web apps - deploy to your staging CDN
+          aws s3 sync ./dist s3://angel-vizio-staging --delete
+
+      - name: Notify Vizio (if required)
+        run: |
+          # Some platforms require notifying them of new builds
+          echo "Vizio staging updated - verify at staging URL"
+
+  deploy-xumo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build XumoTV App
+        run: |
+          cd apps/xumo
+          npm ci
+          npm run build
+
+      - name: Deploy to Xumo Staging
+        run: |
+          aws s3 sync ./dist s3://angel-xumo-staging --delete
+```
+
+### Slack Notifications
+
+**`.github/workflows/notify-token-update.yml`**
+```yaml
+name: Notify Token Updates
+
+on:
+  push:
+    paths:
+      - 'packages/tokens/tokens/**'
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files
+        id: changes
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- packages/tokens/tokens/ | tr '\n' ', ')
+          echo "files=$CHANGED" >> $GITHUB_OUTPUT
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "channel": "#design-system",
+              "username": "Design Tokens Bot",
+              "icon_emoji": ":art:",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "🎨 Design Tokens Updated"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Files changed:*\n${{ steps.changes.outputs.files }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "All apps are rebuilding and will deploy to staging automatically.\n\n*Expected completion:* ~15 minutes"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Build Status"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+```
+
+### Staging → Production Promotion
+
+**`.github/workflows/promote-to-production.yml`**
+```yaml
+name: Promote to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "PROMOTE" to confirm production deployment'
+        required: true
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'PROMOTE'
+    steps:
+      - name: Promote React Web
+        run: |
+          # Copy staging to production
+          aws s3 sync s3://angel-staging-web s3://angel-production-web
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CF_PROD_DIST_ID }} --paths "/*"
+
+      - name: Promote Vizio
+        run: |
+          aws s3 sync s3://angel-vizio-staging s3://angel-vizio-production
+
+      - name: Promote XumoTV
+        run: |
+          aws s3 sync s3://angel-xumo-staging s3://angel-xumo-production
+
+      - name: Notify completion
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "channel": "#design-system",
+              "text": "✅ All web apps promoted to production!"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      # Note: Mobile/TV native apps typically go through app store review
+      # before production. TestFlight/Play Store internal tracks serve as staging.
+```
+
+### Environment Strategy
+
+| Platform | Staging | Production | Notes |
+|----------|---------|------------|-------|
+| **React Native iOS** | TestFlight (Internal) | App Store | Requires Apple review |
+| **React Native Android** | Play Store (Internal) | Play Store | Can promote instantly |
+| **React Web** | staging.angel.com | angel.com | Instant promotion |
+| **Roku** | Staging Channel | Production Channel | Roku review required |
+| **Apple tvOS** | TestFlight | App Store | Apple review required |
+| **Android Fire TV** | Amazon Internal | Amazon Appstore | Amazon review required |
+| **Xbox** | Partner Center (Test) | Microsoft Store | MS review required |
+| **Vizio** | staging-vizio.angel.com | vizio.angel.com | Instant promotion |
+| **XumoTV** | staging-xumo.angel.com | xumo.angel.com | Instant promotion |
+
+### Timeline: Token Change → All Platforms Updated
+
+| Step | Time | Who |
+|------|------|-----|
+| Edit tokens in Figma | ~5 min | You |
+| Export & upload to GitHub | ~2 min | You |
+| Review & merge PR | ~5 min | You/Team |
+| Build tokens for all platforms | ~2 min | Automatic |
+| Rebuild all apps | ~10 min | Automatic |
+| Deploy to staging | ~3 min | Automatic |
+| **Total to staging** | **~25 min** | **Mostly automatic** |
+| Verify in staging | ~10 min | You |
+| Promote to production | ~5 min | You (one click) |
+| **Total to production** | **~40 min** | - |
 
 ---
 
