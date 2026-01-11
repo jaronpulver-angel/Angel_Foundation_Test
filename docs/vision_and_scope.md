@@ -2,13 +2,13 @@
 
 ## Overview
 
-The Angel Design Token System is the single source of truth for all visual design decisions across Angel Studios' digital products. This system bridges the gap between design (Figma) and development (all platforms), ensuring consistency, reducing errors, and accelerating development.
+The Angel Design Token System is the single source of truth for all visual design decisions across Angel' digital products. This system bridges the gap between design (Figma) and development (all platforms), ensuring consistency, reducing errors, and accelerating development.
 
 ---
 
 ## Vision Statement
 
-> **One design change in Figma automatically propagates to all 8 platforms, ensuring pixel-perfect consistency across every Angel Studios experience.**
+> **One design change in Figma automatically propagates to all 8 platforms, ensuring pixel-perfect consistency across every Angel experience.**
 
 ---
 

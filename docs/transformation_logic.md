@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document explains how design tokens are transformed from their source format (Tokens Studio JSON exported from Figma) into platform-specific outputs. Angel Studios supports 8 platforms, each requiring different output formats.
+This document explains how design tokens are transformed from their source format (Token Studio JSON exported from Figma) into platform-specific outputs. Angel supports 8 platforms, each requiring different output formats.
 
 ---
 
@@ -16,7 +16,7 @@ This document explains how design tokens are transformed from their source forma
      SOURCE TOKEN                    TRANSFORMS                    OUTPUT
 ┌─────────────────┐      ┌───────────────────────────┐      ┌─────────────────┐
 │                 │      │                           │      │                 │
-│  spacing: {     │      │  1. Parse Tokens Studio   │      │  WEB (CSS):     │
+│  spacing: {     │      │  1. Parse Token Studio   │      │  WEB (CSS):     │
 │    md: {        │ ───▶ │  2. Resolve references    │ ───▶ │  --spacing-md:  │
 │      value: 10  │      │  3. Apply transforms      │      │    10px;        │
 │      type:      │      │  4. Format for platform   │      │                 │
@@ -54,7 +54,7 @@ This document explains how design tokens are transformed from their source forma
 
 ## Source Token Format
 
-Angel Studios uses the **Tokens Studio** export format from Figma:
+Angel uses the **Token Studio** export format from Figma:
 
 ```json
 {
@@ -110,7 +110,7 @@ Angel Studios uses the **Tokens Studio** export format from Figma:
 
 ### Typography Tokens
 
-Angel Studios uses 4 viewport-specific typography files. TV uses ~1.25x larger font sizes:
+Angel uses 4 viewport-specific typography files. TV uses ~1.25x larger font sizes:
 
 | Platform | Viewport File | Body MD Size | Unit |
 |----------|--------------|--------------|------|
@@ -129,13 +129,13 @@ Angel Studios uses 4 viewport-specific typography files. TV uses ~1.25x larger f
 // style-dictionary.config.mjs
 import StyleDictionary from 'style-dictionary';
 
-// Custom parser for Tokens Studio format
+// Custom parser for Token Studio format
 StyleDictionary.registerParser({
   name: 'tokens-studio-parser',
   pattern: /\.json$/,
   parser: ({ contents }) => {
     const tokens = JSON.parse(contents);
-    // Convert Tokens Studio format to Style Dictionary format
+    // Convert Token Studio format to Style Dictionary format
     return convertTokensStudioFormat(tokens);
   }
 });
@@ -775,7 +775,7 @@ const getTypographySource = (platform) => {
 
 Before transformation, tokens are validated:
 
-1. **Format Validation** - JSON structure matches Tokens Studio format
+1. **Format Validation** - JSON structure matches Token Studio format
 2. **Reference Validation** - All `{token.references}` resolve
 3. **Type Validation** - Values match declared `type`
 4. **Naming Validation** - Names follow conventions (underscores for states)

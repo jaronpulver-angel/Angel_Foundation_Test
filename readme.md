@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/angel-studios/angel-design-tokens/workflows/Build%20and%20Publish/badge.svg)](https://github.com/angel-studios/angel-design-tokens/actions)
 [![npm version](https://badge.fury.io/js/@angel%2Ftokens-web.svg)](https://www.npmjs.com/package/@angel/tokens-web)
 
-The single source of truth for design tokens across all Angel Studios platforms.
+The single source of truth for design tokens across all Angel platforms.
 
 ---
 
@@ -217,4 +217,4 @@ We welcome contributions! See [contributing.md](./contributing.md) for:
 
 ## License
 
-Proprietary - Angel Studios. Internal use only.
+Proprietary - Angel. Internal use only.

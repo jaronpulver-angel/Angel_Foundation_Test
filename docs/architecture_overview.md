@@ -112,7 +112,7 @@ This document explains the complete flow of design tokens from Figma to all 8 su
        │─────────────────────▶ │                          │
        │                        │                          │
        │                        │  3. Generate JSON        │
-       │                        │     (Tokens Studio       │
+       │                        │     (Token Studio       │
        │                        │      format)             │
        │                        │                          │
        │                 4. Download ZIP                   │
@@ -228,7 +228,7 @@ angel-design-tokens/
 
 ### Transformation Example
 
-**Input (Figma/Tokens Studio format):**
+**Input (Figma/Token Studio format):**
 ```json
 {
   "color": {

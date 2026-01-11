@@ -2,13 +2,13 @@
 
 ## Overview
 
-This document defines the naming conventions and hierarchical structure for Angel Studios design tokens. These conventions ensure consistency across all 8 platforms: React Native, React Web, Roku, tvOS, Android TV, Xbox, Vizio SmartCast, and XumoTV.
+This document defines the naming conventions and hierarchical structure for Angel design tokens. These conventions ensure consistency across all 8 platforms: React Native, React Web, Roku, tvOS, Android TV, Xbox, Vizio SmartCast, and XumoTV.
 
 ---
 
 ## Token Format
 
-All tokens use the Tokens Studio format:
+All tokens use the Token Studio format:
 
 ```json
 {

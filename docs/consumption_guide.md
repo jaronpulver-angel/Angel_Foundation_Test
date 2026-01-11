@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide explains how developers on each platform consume Angel Studios design tokens. Find your platform below and follow the instructions to integrate tokens into your codebase.
+This guide explains how developers on each platform consume Angel design tokens. Find your platform below and follow the instructions to integrate tokens into your codebase.
 
 ---
 

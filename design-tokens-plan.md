@@ -1,11 +1,11 @@
-# Angel Studios Design System
+# Angel Design System
 ## Figma → GitHub → Multi-Platform Design Tokens Pipeline
 
 ---
 
 ## Executive Summary
 
-This plan establishes a **single source of truth** for design tokens in Figma that syncs to GitHub and generates platform-specific outputs for **all Angel Studios platforms**:
+This plan establishes a **single source of truth** for design tokens in Figma that syncs to GitHub and generates platform-specific outputs for **all Angel platforms**:
 
 | Platform | Technology | Output Format |
 |----------|------------|---------------|
@@ -673,7 +673,7 @@ tokens-roku/
 
 **`src/AngelTokens.brs`** - Complete TV tokens for Roku
 ```brightscript
-' Angel Studios Design Tokens - BrightScript
+' Angel Design Tokens - BrightScript
 ' Auto-generated from Figma. Do not edit manually.
 '
 ' USAGE: tokens = AngelTokens()
@@ -845,7 +845,7 @@ end sub
 
 **`Sources/AngelTokens/Colors.swift`**
 ```swift
-// Angel Studios Design Tokens - Colors
+// Angel Design Tokens - Colors
 // Auto-generated from Figma. Do not edit manually.
 
 import SwiftUI
@@ -947,7 +947,7 @@ let package = Package(
 **`src/main/res/values/colors.xml`**
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Angel Studios Design Tokens - Colors -->
+<!-- Angel Design Tokens - Colors -->
 <!-- Auto-generated from Figma. Do not edit manually. -->
 <resources>
     <!-- Primitives -->
@@ -972,7 +972,7 @@ let package = Package(
 **`src/main/res/values/dimens.xml`**
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Angel Studios Design Tokens - Dimensions -->
+<!-- Angel Design Tokens - Dimensions -->
 <!-- Auto-generated from Figma. Do not edit manually. -->
 <resources>
     <!-- Spacing -->
@@ -1013,7 +1013,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Angel Studios Design Tokens
+ * Angel Design Tokens
  * Auto-generated from Figma. Do not edit manually.
  */
 object AngelTokens {
@@ -1058,7 +1058,7 @@ object AngelTokens {
 
 **`Themes/AngelColors.xaml`**
 ```xml
-<!-- Angel Studios Design Tokens - Colors -->
+<!-- Angel Design Tokens - Colors -->
 <!-- Auto-generated from Figma. Do not edit manually. -->
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -1129,7 +1129,7 @@ object AngelTokens {
 **`src/variables.css`**
 ```css
 /**
- * Angel Studios Design Tokens - Web TV
+ * Angel Design Tokens - Web TV
  * Optimized for Vizio SmartCast, XumoTV, and other Chromium-based TVs
  * Auto-generated from Figma. Do not edit manually.
  */
@@ -1225,7 +1225,7 @@ button, a, [role="button"], [tabindex] {
 **`src/tokens.js`**
 ```javascript
 /**
- * Angel Studios Design Tokens - JavaScript
+ * Angel Design Tokens - JavaScript
  * For Vizio SmartCast, XumoTV, and other web-based TV platforms
  * Auto-generated from Figma. Do not edit manually.
  */
@@ -1354,7 +1354,7 @@ StyleDictionary.registerFormat({
   name: 'brightscript/constants',
   format: ({ dictionary }) => {
     const tokens = dictionary.allTokens;
-    let output = `' Angel Studios Design Tokens - BrightScript\n`;
+    let output = `' Angel Design Tokens - BrightScript\n`;
     output += `' Auto-generated from Figma. Do not edit manually.\n\n`;
     output += `function AngelTokens() as object\n`;
     output += `    return {\n`;
@@ -1387,7 +1387,7 @@ StyleDictionary.registerFormat({
   name: 'swift/extension',
   format: ({ dictionary, file }) => {
     const tokens = dictionary.allTokens;
-    let output = `// Angel Studios Design Tokens\n`;
+    let output = `// Angel Design Tokens\n`;
     output += `// Auto-generated from Figma. Do not edit manually.\n\n`;
     output += `import SwiftUI\n\n`;
 
