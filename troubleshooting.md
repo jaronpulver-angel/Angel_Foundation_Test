@@ -66,7 +66,7 @@ Common issues and solutions for the Angel Design Token system.
 
 4. **Try alternative plugin**
    - "Design Tokens" by Lukas Oppermann
-   - "Token Studio" plugin
+   - "Tokens Studio" plugin
 
 ---
 

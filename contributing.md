@@ -225,7 +225,7 @@ Reviewers will check:
 
 ## Naming Convention Quick Reference
 
-### Token Format (Token Studio)
+### Token Format (Tokens Studio)
 
 ```json
 {
@@ -381,7 +381,7 @@ TIER 3: Component Sizing (in component/)
 }
 ```
 
-**Right (Token Studio format):**
+**Right (Tokens Studio format):**
 ```json
 {
   "color": {

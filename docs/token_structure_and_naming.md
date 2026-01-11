@@ -8,7 +8,7 @@ This document defines the naming conventions and hierarchical structure for Ange
 
 ## Token Format
 
-All tokens use the Token Studio format:
+All tokens use the Tokens Studio format:
 
 ```json
 {
