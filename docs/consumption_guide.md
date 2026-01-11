@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide explains how developers on each platform consume design tokens. Find your platform below and follow the instructions to integrate tokens into your codebase.
+This guide explains how developers on each platform consume Angel Studios design tokens. Find your platform below and follow the instructions to integrate tokens into your codebase.
 
 ---
 
@@ -10,12 +10,12 @@ This guide explains how developers on each platform consume design tokens. Find 
 
 | Platform | Package | Import |
 |----------|---------|--------|
-| React Native | `@angel/tokens-react-native` | `import { theme } from '@angel/tokens-react-native'` |
+| React Native | `@angel/tokens-react-native` | `import { tokens } from '@angel/tokens-react-native'` |
 | React Web | `@angel/tokens-web` | `@import '@angel/tokens-web/tokens.css'` |
-| Roku | `packages/roku` | `AngelTokens = AngelTokens()` |
+| Roku | `packages/roku` | `m.tokens = AngelTokens()` |
 | tvOS | `AngelTokens (SPM)` | `import AngelTokens` |
-| Android TV | `angel-tokens` (Maven) | `R.color.color_action_primary_background` |
-| Xbox | `AngelTokens` (NuGet) | `{StaticResource ColorBlue500}` |
+| Android TV | `angel-tokens` (Maven) | `R.color.color_accent_600` |
+| Xbox | `AngelTokens` (NuGet) | `{StaticResource ColorAccent600}` |
 | Vizio/Xumo | `@angel/tokens-web-tv` | `import tokens from '@angel/tokens-web-tv'` |
 
 ---
@@ -25,96 +25,111 @@ This guide explains how developers on each platform consume design tokens. Find 
 ### Installation
 
 ```bash
-# Using npm
 npm install @angel/tokens-react-native
-
-# Using yarn
+# or
 yarn add @angel/tokens-react-native
-
-# Using pnpm
-pnpm add @angel/tokens-react-native
 ```
 
 ### Basic Usage
 
 ```typescript
-// Import the theme object
-import { theme } from '@angel/tokens-react-native';
+import { tokens } from '@angel/tokens-react-native';
 
-// Use in styles
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: theme.colors.background.primary,
-    padding: theme.spacing.padding.md,
+    backgroundColor: tokens.surface.default,
+    padding: tokens.spacing.md,  // 10
   },
   title: {
-    color: theme.colors.text.primary,
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: theme.typography.fontWeight.bold,
+    color: tokens.text.primary,
+    fontSize: tokens.font.size.heading.h1,  // 40
+    fontWeight: tokens.font.weight.bold,
   },
   button: {
-    backgroundColor: theme.colors.action.primary.background,
-    borderRadius: theme.radius.md,
-    paddingVertical: theme.spacing.padding.sm,
-    paddingHorizontal: theme.spacing.padding.lg,
+    backgroundColor: tokens.component.button.emphasis.primary.background,
+    borderRadius: tokens.button.size.md.border_radius,  // 12
+    paddingVertical: tokens.button.size.md.padding_vertical,  // 13
+    paddingHorizontal: tokens.button.size.md.padding_horizontal,  // 12
+    height: tokens.button.size.md.height,  // 40
+  },
+  buttonText: {
+    color: tokens.component.button.emphasis.primary.text,
+    fontSize: tokens.button.size.md.font_size,  // 14
   },
 });
 ```
 
-### Individual Token Imports
+### Accessing Color Scales
 
 ```typescript
-// Import specific tokens
-import {
-  colorActionPrimaryBackground,
-  spacingPaddingMd,
-  fontSizeXl,
-  radiusMd,
-} from '@angel/tokens-react-native';
+import { tokens } from '@angel/tokens-react-native';
 
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: colorActionPrimaryBackground,
-    padding: spacingPaddingMd,
-    borderRadius: radiusMd,
-  },
-});
+// Base colors (50-1000 scale)
+tokens.color.neutral[500]      // '#9d9c9b'
+tokens.color.accent[600]       // '#16b087'
+tokens.color.danger[500]       // '#f45a3b'
+tokens.color.guild[500]        // '#c85a23'
+
+// Semantic colors (themed)
+tokens.surface.default         // white in light mode
+tokens.text.primary            // black in light mode
+tokens.divider.normal          // subtle black
+
+// Component colors
+tokens.component.button.emphasis.primary.background
+tokens.component.button.emphasis.primary.background_hover
+tokens.component.button.emphasis.brand.background
 ```
 
-### With Styled Components
+### Spacing Scale
 
 ```typescript
-import styled from 'styled-components/native';
-import { theme } from '@angel/tokens-react-native';
+// Small values (mobile/web)
+tokens.spacing.xs    // 6
+tokens.spacing.sm    // 8
+tokens.spacing.md    // 10
+tokens.spacing.lg    // 12
+tokens.spacing.xl    // 14
+tokens.spacing['2xl'] // 16
+tokens.spacing['4xl'] // 24
 
-const PrimaryButton = styled.TouchableOpacity`
-  background-color: ${theme.colors.action.primary.background};
-  padding: ${theme.spacing.padding.md}px;
-  border-radius: ${theme.radius.md}px;
-`;
+// Large values (TV)
+tokens.spacing['9xl']  // 44
+tokens.spacing['12xl'] // 64
+tokens.spacing['27xl'] // 384
+```
 
-const ButtonText = styled.Text`
-  color: ${theme.colors.action.primary.text};
-  font-size: ${theme.typography.fontSize.base}px;
-  font-weight: ${theme.typography.fontWeight.semibold};
-`;
+### Button Sizes
+
+```typescript
+// Button size tokens include everything needed
+const buttonMd = {
+  height: tokens.button.size.md.height,                    // 40
+  paddingH: tokens.button.size.md.padding_horizontal,      // 12
+  paddingV: tokens.button.size.md.padding_vertical,        // 13
+  borderRadius: tokens.button.size.md.border_radius,       // 12
+  fontSize: tokens.button.size.md.font_size,               // 14
+  lineHeight: tokens.button.size.md.font_line_height,      // 14
+  iconSize: tokens.button.size.md.icon_height,             // 14
+};
+
+// Available sizes: xs, sm, md, lg, xl
 ```
 
 ### Font Setup
 
 ```typescript
-// App.tsx - Load fonts with expo-font
+// App.tsx - Load Whitney SSm fonts
 import { useFonts } from 'expo-font';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    'AngelSans-Regular': require('@angel/tokens-react-native/fonts/AngelSans-Regular.ttf'),
-    'AngelSans-Medium': require('@angel/tokens-react-native/fonts/AngelSans-Medium.ttf'),
-    'AngelSans-Bold': require('@angel/tokens-react-native/fonts/AngelSans-Bold.ttf'),
+    'WhitneySSmMedium': require('@angel/fonts/WhitneySSm-Medium.ttf'),
+    'WhitneySSmSemibold': require('@angel/fonts/WhitneySSm-Semibold.ttf'),
+    'WhitneySSmBold': require('@angel/fonts/WhitneySSm-Bold.ttf'),
   });
 
   if (!fontsLoaded) return null;
-
   return <AppContent />;
 }
 ```
@@ -137,49 +152,55 @@ npm install @angel/tokens-web
 
 /* Use CSS variables */
 .button-primary {
-  background-color: var(--color-action-primary-background);
-  color: var(--color-action-primary-text);
-  padding: var(--spacing-padding-sm) var(--spacing-padding-lg);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  background-color: var(--component-button-emphasis-primary-background);
+  color: var(--component-button-emphasis-primary-text);
+  height: var(--button-size-md-height);
+  padding: var(--button-size-md-padding-vertical) var(--button-size-md-padding-horizontal);
+  border-radius: var(--button-size-md-border-radius);
+  font-size: var(--button-size-md-font-size);
 }
 
 .button-primary:hover {
-  background-color: var(--color-action-primary-background-hover);
+  background-color: var(--component-button-emphasis-primary-background-hover);
 }
 
-.button-primary:active {
-  background-color: var(--color-action-primary-background-active);
+.button-primary:disabled {
+  background-color: var(--component-button-emphasis-primary-background-disabled);
+  color: var(--component-button-emphasis-primary-text-disabled);
+}
+```
+
+### Spacing
+
+```css
+.card {
+  padding: var(--spacing-lg);        /* 12px */
+  margin-bottom: var(--spacing-4xl); /* 24px */
+  border-radius: var(--border-radius-rounded-lg);  /* 12px */
+}
+
+.card-title {
+  color: var(--text-primary);
+  font-size: var(--font-size-heading-h3);
+  margin-bottom: var(--spacing-sm);  /* 8px */
+}
+
+.card-body {
+  color: var(--text-secondary);
+  font-size: var(--font-size-body-md);
 }
 ```
 
 ### SCSS Variables
 
 ```scss
-// Import SCSS tokens
 @import '@angel/tokens-web/tokens.scss';
 
-// Use SCSS variables
 .card {
-  background: $color-background-primary;
-  border: 1px solid $color-border-default;
-  border-radius: $radius-lg;
-  padding: $spacing-padding-lg;
-  box-shadow: $shadow-md;
-
-  &__title {
-    color: $color-text-primary;
-    font-size: $font-size-xl;
-    font-weight: $font-weight-bold;
-    margin-bottom: $spacing-margin-sm;
-  }
-
-  &__body {
-    color: $color-text-secondary;
-    font-size: $font-size-base;
-    line-height: $line-height-normal;
-  }
+  background: $surface-default;
+  border: 1px solid $divider-normal;
+  border-radius: $border-radius-rounded-lg;
+  padding: $spacing-lg;
 }
 ```
 
@@ -193,66 +214,50 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        action: {
-          primary: {
-            DEFAULT: tokens.colorActionPrimaryBackground,
-            hover: tokens.colorActionPrimaryBackgroundHover,
-            text: tokens.colorActionPrimaryText,
-          },
+        neutral: {
+          50: tokens.colorNeutral50,
+          500: tokens.colorNeutral500,
+          1000: tokens.colorNeutral1000,
         },
-        text: {
-          primary: tokens.colorTextPrimary,
-          secondary: tokens.colorTextSecondary,
+        accent: {
+          600: tokens.colorAccent600,
         },
+        surface: {
+          DEFAULT: tokens.surfaceDefault,
+        },
+        'text-primary': tokens.textPrimary,
       },
       spacing: {
-        'token-xs': tokens.spacingPaddingXs,
-        'token-sm': tokens.spacingPaddingSm,
-        'token-md': tokens.spacingPaddingMd,
-        'token-lg': tokens.spacingPaddingLg,
-      },
-      borderRadius: {
-        'token-sm': tokens.radiusSm,
-        'token-md': tokens.radiusMd,
-        'token-lg': tokens.radiusLg,
+        'token-sm': `${tokens.spacingSm}px`,
+        'token-md': `${tokens.spacingMd}px`,
+        'token-lg': `${tokens.spacingLg}px`,
       },
     },
   },
 };
 ```
 
-```html
-<!-- Use in HTML -->
-<button class="bg-action-primary hover:bg-action-primary-hover text-action-primary-text
-               px-token-lg py-token-sm rounded-token-md">
-  Primary Button
-</button>
-```
-
 ### Font Setup
 
 ```css
-/* Load fonts */
 @font-face {
-  font-family: 'AngelSans';
-  src: url('@angel/tokens-web/fonts/AngelSans-Regular.woff2') format('woff2'),
-       url('@angel/tokens-web/fonts/AngelSans-Regular.woff') format('woff');
-  font-weight: 400;
+  font-family: 'Whitney SSm';
+  src: url('@angel/fonts/WhitneySSm-Medium.woff2') format('woff2');
+  font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'AngelSans';
-  src: url('@angel/tokens-web/fonts/AngelSans-Bold.woff2') format('woff2'),
-       url('@angel/tokens-web/fonts/AngelSans-Bold.woff') format('woff');
+  font-family: 'Whitney SSm';
+  src: url('@angel/fonts/WhitneySSm-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 body {
-  font-family: var(--font-family-sans);
+  font-family: var(--font-family-body);
 }
 ```
 
@@ -262,39 +267,43 @@ body {
 
 ### Setup
 
-1. Copy `AngelTokens.brs` to your `source/` directory
-2. Copy fonts to `fonts/` directory
+Copy `AngelTokens.brs` to your `source/` directory.
 
 ### Basic Usage
 
 ```brightscript
-' Initialize tokens
 sub init()
     m.tokens = AngelTokens()
 end sub
 
-' Use in components
-function createButton() as object
+function createPrimaryButton() as object
     button = m.top.createChild("Rectangle")
-    button.color = m.tokens.colorActionPrimaryBackground
-    button.width = m.tokens.componentButtonMinWidth
-    button.height = m.tokens.componentButtonHeight
+
+    ' Use component colors
+    button.color = m.tokens.ComponentButtonEmphasisPrimaryBackground
+
+    ' Use button sizing
+    button.height = m.tokens.ButtonSizeLgHeight  ' 48
+    button.width = 200
+
+    ' Create text label
+    label = button.createChild("Label")
+    label.color = m.tokens.ComponentButtonEmphasisPrimaryText
+    label.font.size = m.tokens.ButtonSizeLgFontSize  ' 16
+
     return button
 end function
+```
 
-' Row layout with token heights
-function createContentRow(size as string) as object
+### Spacing for TV
+
+```brightscript
+function createContentRow() as object
     row = m.top.createChild("RowList")
 
-    if size = "sm"
-        row.itemSize = [m.tokens.componentCardPosterWidth, m.tokens.layoutRowHeightSm]
-    else if size = "md"
-        row.itemSize = [m.tokens.componentCardPosterWidth, m.tokens.layoutRowHeightMd]
-    else if size = "lg"
-        row.itemSize = [m.tokens.componentCardLandscapeWidth, m.tokens.layoutRowHeightLg]
-    else if size = "hero"
-        row.itemSize = [m.tokens.componentCardHeroWidth, m.tokens.layoutRowHeightHero]
-    end if
+    ' Use larger spacing for TV (10-foot UI)
+    row.itemSpacing = [m.tokens.Spacing4xl, 0]  ' 24px gap
+    row.translation = [m.tokens.Spacing10xl, m.tokens.Spacing6xl]  ' Safe margins
 
     return row
 end function
@@ -303,40 +312,13 @@ end function
 ### Focus States
 
 ```brightscript
-' Apply focus styling
 function onFocusChange()
     if m.top.hasFocus()
-        m.background.color = m.tokens.focusRingColor
-        m.background.scale = [m.tokens.focusScale, m.tokens.focusScale]
+        ' Apply focus styling
+        m.background.color = m.tokens.ColorAccent600
     else
-        m.background.color = m.tokens.colorBackgroundPrimary
-        m.background.scale = [1.0, 1.0]
+        m.background.color = m.tokens.SurfaceDefault
     end if
-end function
-
-' Safe area margins
-function applySafeArea(node as object)
-    node.translation = [m.tokens.safeAreaHorizontal, m.tokens.safeAreaVertical]
-end function
-```
-
-### Card Component
-
-```brightscript
-function createPosterCard() as object
-    card = m.top.createChild("Poster")
-    card.width = m.tokens.componentCardPosterWidth   ' 150
-    card.height = m.tokens.componentCardPosterHeight ' 225
-    card.loadWidth = card.width
-    card.loadHeight = card.height
-    return card
-end function
-
-function createLandscapeCard() as object
-    card = m.top.createChild("Poster")
-    card.width = m.tokens.componentCardLandscapeWidth   ' 320
-    card.height = m.tokens.componentCardLandscapeHeight ' 180
-    return card
 end function
 ```
 
@@ -359,106 +341,81 @@ dependencies: [
 import SwiftUI
 import AngelTokens
 
-struct ContentView: View {
-    var body: some View {
-        VStack(spacing: AngelTokens.Spacing.md) {
-            Text("Welcome")
-                .font(.system(size: AngelTokens.Typography.fontSize.xl))
-                .foregroundColor(AngelTokens.Colors.Text.primary)
+struct PrimaryButton: View {
+    let title: String
+    let action: () -> Void
 
-            Button(action: {}) {
-                Text("Get Started")
-                    .font(.system(size: AngelTokens.Typography.fontSize.base,
-                                  weight: .semibold))
-                    .foregroundColor(AngelTokens.Colors.Action.primaryText)
-                    .frame(minWidth: AngelTokens.Components.Button.minWidth,
-                           minHeight: AngelTokens.Components.Button.height)
-            }
-            .background(AngelTokens.Colors.Action.primaryBackground)
-            .cornerRadius(AngelTokens.Radius.md)
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: AngelTokens.Button.Size.lg.fontSize))  // 16
+                .foregroundColor(AngelTokens.Component.Button.Emphasis.primary.text)
         }
-        .padding(.horizontal, AngelTokens.SafeArea.horizontal)
-        .padding(.vertical, AngelTokens.SafeArea.vertical)
+        .frame(height: AngelTokens.Button.Size.lg.height)  // 48
+        .padding(.horizontal, AngelTokens.Button.Size.lg.paddingHorizontal)  // 14
+        .background(AngelTokens.Component.Button.Emphasis.primary.background)
+        .cornerRadius(AngelTokens.Button.Size.lg.borderRadius)  // 14
     }
 }
 ```
 
-### Row Layout
+### Colors
 
 ```swift
-import SwiftUI
-import AngelTokens
+// Base colors
+AngelTokens.Color.neutral500    // #9d9c9b
+AngelTokens.Color.accent600     // #16b087
+AngelTokens.Color.danger500     // #f45a3b
 
-struct ContentRow: View {
-    let size: RowSize
-    let items: [ContentItem]
+// Semantic colors
+AngelTokens.Surface.default     // themed
+AngelTokens.Text.primary        // themed
+AngelTokens.Text.secondary      // themed
+```
 
-    enum RowSize {
-        case small, medium, large, hero
+### Spacing
 
-        var height: CGFloat {
-            switch self {
-            case .small: return AngelTokens.Layout.rowHeightSm   // 180
-            case .medium: return AngelTokens.Layout.rowHeightMd  // 240
-            case .large: return AngelTokens.Layout.rowHeightLg   // 320
-            case .hero: return AngelTokens.Layout.rowHeightHero  // 480
-            }
-        }
-    }
+```swift
+// Standard spacing
+AngelTokens.Spacing.sm    // 8
+AngelTokens.Spacing.md    // 10
+AngelTokens.Spacing.lg    // 12
 
-    var body: some View {
-        ScrollView(.horizontal) {
-            LazyHStack(spacing: AngelTokens.Spacing.gap.md) {
-                ForEach(items) { item in
-                    ContentCard(item: item)
-                        .frame(height: size.height)
-                }
-            }
-            .padding(.horizontal, AngelTokens.Layout.containerPaddingHorizontal)
-        }
-    }
-}
+// TV spacing (larger)
+AngelTokens.Spacing.xl9   // 44
+AngelTokens.Spacing.xl12  // 64
 ```
 
 ### Focus States
 
 ```swift
 struct FocusableCard: View {
-    let item: ContentItem
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack {
-            AsyncImage(url: item.imageURL)
-            Text(item.title)
-        }
-        .focusable()
-        .focused($isFocused)
-        .scaleEffect(isFocused ? AngelTokens.Focus.scale : 1.0)  // 1.05
-        .overlay(
-            RoundedRectangle(cornerRadius: AngelTokens.Radius.md)
-                .stroke(
-                    isFocused ? AngelTokens.Focus.ringColor : .clear,
-                    lineWidth: AngelTokens.Focus.ringWidth  // 4
-                )
-        )
-        .shadow(
-            color: isFocused ? AngelTokens.Colors.blue500.opacity(0.5) : .clear,
-            radius: 10
-        )
-        .animation(.easeOut(duration: 0.15), value: isFocused)
+        VStack { /* content */ }
+            .focusable()
+            .focused($isFocused)
+            .overlay(
+                RoundedRectangle(cornerRadius: AngelTokens.BorderRadius.roundedLg)
+                    .stroke(
+                        isFocused ? AngelTokens.Color.accent600 : .clear,
+                        lineWidth: 4
+                    )
+            )
+            .scaleEffect(isFocused ? 1.05 : 1.0)
+            .animation(.easeOut(duration: 0.15), value: isFocused)
     }
 }
 ```
 
 ---
 
-## Android TV (Kotlin/Java)
+## Android TV (Kotlin)
 
 ### Installation (Gradle)
 
 ```groovy
-// build.gradle
 dependencies {
     implementation 'com.angelstudios:angel-tokens:1.0.0'
 }
@@ -467,82 +424,42 @@ dependencies {
 ### Colors
 
 ```kotlin
-// Access colors via resources
-val primaryBackground = ContextCompat.getColor(context, R.color.color_action_primary_background)
-val textPrimary = ContextCompat.getColor(context, R.color.color_text_primary)
+// In code
+val primaryBg = ContextCompat.getColor(context, R.color.component_button_emphasis_primary_background)
+val accentColor = ContextCompat.getColor(context, R.color.color_accent_600)
 
 // In XML
 <Button
-    android:background="@color/color_action_primary_background"
-    android:textColor="@color/color_action_primary_text" />
+    android:background="@color/component_button_emphasis_primary_background"
+    android:textColor="@color/component_button_emphasis_primary_text" />
 ```
 
 ### Dimensions
 
 ```kotlin
-// Access dimensions
-val paddingMd = resources.getDimensionPixelSize(R.dimen.spacing_padding_md)
-val rowHeight = resources.getDimensionPixelSize(R.dimen.layout_row_height_md)
+// In code
+val buttonHeight = resources.getDimensionPixelSize(R.dimen.button_size_lg_height)  // 48dp
+val paddingMd = resources.getDimensionPixelSize(R.dimen.spacing_md)  // 10dp
 
 // In XML
-<LinearLayout
-    android:padding="@dimen/spacing_padding_md"
-    android:layout_height="@dimen/layout_row_height_md" />
+<Button
+    android:layout_height="@dimen/button_size_lg_height"
+    android:paddingHorizontal="@dimen/button_size_lg_padding_horizontal"
+    android:textSize="@dimen/button_size_lg_font_size" />
 ```
 
-### Focus Handling
+### Complete Button Example
 
-```kotlin
-class FocusableCardView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null
-) : CardView(context, attrs) {
-
-    private val focusScale = 1.05f  // From tokens
-    private val focusRingWidth = resources.getDimensionPixelSize(R.dimen.focus_ring_width)
-    private val focusRingColor = ContextCompat.getColor(context, R.color.focus_ring_color)
-
-    init {
-        isFocusable = true
-        isFocusableInTouchMode = true
-
-        onFocusChangeListener = OnFocusChangeListener { _, hasFocus ->
-            animate()
-                .scaleX(if (hasFocus) focusScale else 1f)
-                .scaleY(if (hasFocus) focusScale else 1f)
-                .setDuration(150)
-                .start()
-
-            strokeWidth = if (hasFocus) focusRingWidth else 0
-            strokeColor = focusRingColor
-        }
-    }
-}
-```
-
-### RecyclerView with Token Heights
-
-```kotlin
-class ContentRowAdapter(
-    private val rowSize: RowSize
-) : RecyclerView.Adapter<ContentViewHolder>() {
-
-    enum class RowSize {
-        SMALL, MEDIUM, LARGE, HERO;
-
-        fun getHeight(resources: Resources): Int = when (this) {
-            SMALL -> resources.getDimensionPixelSize(R.dimen.layout_row_height_sm)
-            MEDIUM -> resources.getDimensionPixelSize(R.dimen.layout_row_height_md)
-            LARGE -> resources.getDimensionPixelSize(R.dimen.layout_row_height_lg)
-            HERO -> resources.getDimensionPixelSize(R.dimen.layout_row_height_hero)
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentViewHolder {
-        val height = rowSize.getHeight(parent.resources)
-        // Create view holder with token height
-    }
-}
+```xml
+<Button
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/button_size_lg_height"
+    android:paddingStart="@dimen/button_size_lg_padding_horizontal"
+    android:paddingEnd="@dimen/button_size_lg_padding_horizontal"
+    android:background="@drawable/button_primary_background"
+    android:textColor="@color/component_button_emphasis_primary_text"
+    android:textSize="@dimen/font_size_body_md"
+    android:text="Get Started" />
 ```
 
 ---
@@ -555,90 +472,32 @@ class ContentRowAdapter(
 <PackageReference Include="AngelStudios.DesignTokens" Version="1.0.0" />
 ```
 
-### Resource Dictionary Setup
+### Resource Dictionary
 
 ```xml
 <!-- App.xaml -->
 <Application.Resources>
     <ResourceDictionary>
         <ResourceDictionary.MergedDictionaries>
-            <ResourceDictionary Source="ms-appx:///AngelTokens/AngelTokens.xaml" />
+            <ResourceDictionary Source="ms-appx:///AngelTokens/Tokens.xaml" />
         </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
 </Application.Resources>
 ```
 
-### Using Tokens in XAML
+### Using Tokens
 
 ```xml
-<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-
-    <Grid Background="{StaticResource ColorBackgroundPrimary}"
-          Padding="{StaticResource SafeAreaHorizontal}">
-
-        <StackPanel Spacing="{StaticResource SpacingGapMd}">
-
-            <TextBlock Text="Welcome"
-                       Foreground="{StaticResource ColorTextPrimary}"
-                       FontSize="{StaticResource FontSizeXl}"
-                       FontWeight="Bold" />
-
-            <Button Content="Get Started"
-                    Background="{StaticResource ColorActionPrimaryBackground}"
-                    Foreground="{StaticResource ColorActionPrimaryText}"
-                    MinWidth="{StaticResource ComponentButtonMinWidth}"
-                    Height="{StaticResource ComponentButtonHeight}"
-                    CornerRadius="{StaticResource RadiusMd}" />
-
-        </StackPanel>
-    </Grid>
-</Page>
-```
-
-### Focus Visual States
-
-```xml
-<Style x:Key="FocusableCardStyle" TargetType="ContentControl">
-    <Setter Property="Template">
-        <Setter.Value>
-            <ControlTemplate TargetType="ContentControl">
-                <Grid>
-                    <Border x:Name="FocusBorder"
-                            BorderThickness="{StaticResource FocusRingWidth}"
-                            BorderBrush="Transparent"
-                            CornerRadius="{StaticResource RadiusMd}">
-                        <ContentPresenter />
-                    </Border>
-
-                    <VisualStateManager.VisualStateGroups>
-                        <VisualStateGroup x:Name="FocusStates">
-                            <VisualState x:Name="Focused">
-                                <Storyboard>
-                                    <ColorAnimation
-                                        Storyboard.TargetName="FocusBorder"
-                                        Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
-                                        To="{StaticResource FocusRingColor}"
-                                        Duration="0:0:0.15" />
-                                    <DoubleAnimation
-                                        Storyboard.TargetName="FocusBorder"
-                                        Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                        To="{StaticResource FocusScale}"
-                                        Duration="0:0:0.15" />
-                                    <DoubleAnimation
-                                        Storyboard.TargetName="FocusBorder"
-                                        Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                        To="{StaticResource FocusScale}"
-                                        Duration="0:0:0.15" />
-                                </Storyboard>
-                            </VisualState>
-                        </VisualStateGroup>
-                    </VisualStateManager.VisualStateGroups>
-                </Grid>
-            </ControlTemplate>
-        </Setter.Value>
-    </Setter>
-</Style>
+<Button
+    Background="{StaticResource ComponentButtonEmphasisPrimaryBackground}"
+    Foreground="{StaticResource ComponentButtonEmphasisPrimaryText}"
+    Height="{StaticResource ButtonSizeLgHeight}"
+    Padding="{StaticResource ButtonSizeLgPaddingHorizontal}"
+    CornerRadius="{StaticResource ButtonSizeLgBorderRadius}">
+    <TextBlock
+        Text="Get Started"
+        FontSize="{StaticResource ButtonSizeLgFontSize}" />
+</Button>
 ```
 
 ---
@@ -651,103 +510,55 @@ class ContentRowAdapter(
 npm install @angel/tokens-web-tv
 ```
 
-### CSS Variables
-
-```javascript
-// Import CSS
-import '@angel/tokens-web-tv/tokens.css';
-
-// Use in components
-const Card = () => (
-  <div style={{
-    width: 'var(--component-card-landscape-width)',
-    height: 'var(--component-card-landscape-height)',
-    backgroundColor: 'var(--color-background-primary)',
-    borderRadius: 'var(--radius-md)',
-  }}>
-    {/* content */}
-  </div>
-);
-```
-
-### JavaScript Object
+### Usage
 
 ```javascript
 import tokens from '@angel/tokens-web-tv';
 
-// Use in styles
 const styles = {
-  row: {
-    height: tokens.layoutRowHeightMd,  // 240
-    paddingLeft: tokens.safeAreaHorizontal,  // 48
-    paddingRight: tokens.safeAreaHorizontal,
-  },
-  card: {
-    width: tokens.componentCardLandscapeWidth,  // 320
-    height: tokens.componentCardLandscapeHeight,  // 180
-    borderRadius: tokens.radiusMd,
-  },
-  focusRing: {
-    borderWidth: tokens.focusRingWidth,  // 4
-    borderColor: tokens.focusRingColor,  // #3B82F6
-    transform: `scale(${tokens.focusScale})`,  // 1.05
+  button: {
+    backgroundColor: tokens.componentButtonEmphasisPrimaryBackground,
+    color: tokens.componentButtonEmphasisPrimaryText,
+    height: tokens.buttonSizeLgHeight,  // 48
+    paddingLeft: tokens.buttonSizeLgPaddingHorizontal,  // 14
+    paddingRight: tokens.buttonSizeLgPaddingHorizontal,
+    borderRadius: tokens.buttonSizeLgBorderRadius,  // 14
+    fontSize: tokens.fontSizeBodyMd,  // 20 (TV size)
   },
 };
 ```
 
-### Safe Area Implementation
+### TV-Specific Spacing
 
 ```javascript
-import tokens from '@angel/tokens-web-tv';
-
-const TVLayout = ({ children }) => (
-  <div style={{
-    paddingLeft: tokens.safeAreaHorizontal,
-    paddingRight: tokens.safeAreaHorizontal,
-    paddingTop: tokens.safeAreaVertical,
-    paddingBottom: tokens.safeAreaVertical,
-    minHeight: '100vh',
-    boxSizing: 'border-box',
-  }}>
-    {children}
-  </div>
-);
+// Use larger spacing values for TV
+const tvStyles = {
+  container: {
+    paddingLeft: tokens.spacing10xl,   // 48 - safe area
+    paddingRight: tokens.spacing10xl,
+    paddingTop: tokens.spacing6xl,     // 32
+  },
+  row: {
+    marginBottom: tokens.spacing4xl,   // 24
+    gap: tokens.spacing3xl,            // 20
+  },
+};
 ```
 
 ---
 
-## Common Patterns
+## Typography by Platform
 
-### Checking Token Version
+Each platform loads the appropriate typography file based on viewport:
 
-```javascript
-// All packages expose version
-import { version } from '@angel/tokens-web';
-console.log(`Using tokens v${version}`);
-```
+| Platform | Typography File | Body MD Size |
+|----------|-----------------|--------------|
+| Mobile | `typography/mobile.json` | 16 |
+| Tablet | `typography/tablet.json` | 16 |
+| Desktop | `typography/desktop.json` | 16 |
+| TV (all) | `typography/tv.json` | 20 |
 
-### TypeScript Types
-
-```typescript
-// Types are included
-import type { Theme, Colors, Spacing } from '@angel/tokens-react-native';
-
-const useTheme = (): Theme => {
-  // Type-safe theme access
-};
-```
-
-### Updating Tokens
-
-When tokens are updated, run:
-
-```bash
-# Update to latest version
-npm update @angel/tokens-<platform>
-
-# Or specific version
-npm install @angel/tokens-<platform>@1.2.0
-```
+TV platforms automatically use ~1.25x larger font sizes for 10-foot viewing.
 
 ---
 
@@ -755,4 +566,4 @@ npm install @angel/tokens-<platform>@1.2.0
 
 - [Token Structure and Naming](./token_structure_and_naming.md)
 - [Transformation Logic](./transformation_logic.md)
-- [Troubleshooting](../TROUBLESHOOTING.md)
+- [mapping.md](../mapping.md)
