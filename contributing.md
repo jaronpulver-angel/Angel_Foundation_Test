@@ -58,9 +58,9 @@ Thank you for your interest in contributing to the Angel Design Token system! Th
 
 #### Step 2: Export Tokens
 
-1. Run the "Design Tokens (W3C) Export" plugin
+1. Run the "Variables Export" plugin by Kel Browner (free)
 2. Download the generated JSON file
-3. Name it descriptively: `colors-update-brand-blue.json`
+3. Name it descriptively: `colors-update-brand-accent.json`
 
 #### Step 3: Create Pull Request
 
@@ -84,11 +84,11 @@ cd angel-design-tokens
 git checkout -b tokens/update-brand-colors
 
 # Copy your exported JSON
-cp ~/Downloads/colors.json tokens/colors.json
+cp ~/Downloads/color_base/tokens.json tokens/color_base/tokens.json
 
 # Commit and push
-git add tokens/colors.json
-git commit -m "feat: update brand primary color to #2563EB"
+git add tokens/
+git commit -m "feat: update brand accent color to #16b087"
 git push origin tokens/update-brand-colors
 
 # Create PR via GitHub
@@ -104,8 +104,8 @@ Brief description of changes
 Why are these changes needed?
 
 ## Changes Made
-- Changed `color-action-primary-background` from #3B82F6 to #2563EB
-- Added `color-action-primary-background-active` for pressed state
+- Changed `color.accent.600` from #129973 to #16b087
+- Added `component.button.emphasis.brand.background_active` for pressed state
 
 ## Figma Link
 [Link to Figma file/frame]
@@ -141,8 +141,8 @@ If your platform needs a token that doesn't exist:
 **Platform:** [e.g., Roku, Xbox]
 
 **Proposed Token:**
-- Name: `tv-button-focus-glow-spread`
-- Value: `20`
+- Name: `button.size.tv_xl.height`
+- Value: `64`
 - Type: `number`
 
 **Justification:**
@@ -150,7 +150,7 @@ If your platform needs a token that doesn't exist:
 
 **Usage Example:**
 ```brightscript
-button.focusGlowSpread = m.tokens.tvButtonFocusGlowSpread
+button.height = m.tokens.ButtonSizeTvXlHeight
 ```
 ```
 
@@ -158,7 +158,7 @@ button.focusGlowSpread = m.tokens.tvButtonFocusGlowSpread
 
 If tokens are causing build failures:
 
-1. Check [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) first
+1. Check [troubleshooting.md](./troubleshooting.md) first
 2. If it's a token issue, create a PR with the fix
 3. Reference the failing build in your PR
 
@@ -169,7 +169,7 @@ If tokens are causing build failures:
 ### All PRs Must
 
 1. **Pass CI checks**
-   - JSON schema validation
+   - JSON format validation
    - Naming convention validation
    - No broken references
 
@@ -225,30 +225,49 @@ Reviewers will check:
 
 ## Naming Convention Quick Reference
 
-### Format
+### Token Format (Tokens Studio)
+
+```json
+{
+  "color": {
+    "accent": {
+      "600": {
+        "value": "#16b087",
+        "type": "color"
+      }
+    }
+  }
+}
 ```
-[category]-[type]-[item]-[subitem]-[state]
-```
+
+**Key points:**
+- Use `value` and `type` (NOT `$value` / `$type`)
+- Use nested structure with dots: `color.accent.600`
+- Use underscores for states: `background_hover`, `text_disabled`
+- Color scale: 50-1000 (11 steps)
 
 ### Examples
 
-| Token | Category | Type | Item | Subitem | State |
-|-------|----------|------|------|---------|-------|
-| `color-blue-500` | color | blue | 500 | - | - |
-| `color-action-primary-background` | color | action | primary | background | - |
-| `color-action-primary-background-hover` | color | action | primary | background | hover |
-| `spacing-padding-md` | spacing | padding | md | - | - |
-| `tv-layout-row-height-lg` | tv | layout | row-height | lg | - |
+| Token Path | Category | Description |
+|------------|----------|-------------|
+| `color.accent.600` | Base color | Teal brand action color |
+| `color.guild.500` | Base color | Brand orange |
+| `surface.default` | Semantic | Main background (themed) |
+| `text.primary` | Semantic | Primary text color (themed) |
+| `component.button.emphasis.primary.background` | Component | Button bg color |
+| `component.button.emphasis.primary.background_hover` | Component | Button hover state |
+| `button.size.md.height` | Component sizing | Button height (40) |
+| `spacing.md` | Dimension | 10 |
+| `spacing.4xl` | Dimension | 24 |
+| `border_radius.rounded_lg` | Dimension | 12 |
 
 ### Rules
 
-- ✅ Use lowercase
-- ✅ Use hyphens between words
-- ✅ Be descriptive
-- ✅ Use semantic names for tokens developers use
-- ❌ Don't use abbreviations (except: sm, md, lg, xl)
-- ❌ Don't use platform-specific names
-- ❌ Don't use magic numbers
+- **Use nested structure** for hierarchy (dots for nesting)
+- **Use underscores** for states: `_hover`, `_pressed`, `_focused`, `_disabled`
+- **Use underscores** for multi-word items: `border_radius`, `line_height`
+- **Be descriptive** - semantic names for tokens developers use
+- **Avoid abbreviations** except: xs, sm, md, lg, xl, 2xl, etc.
 
 ---
 
@@ -257,14 +276,14 @@ Reviewers will check:
 When adding tokens, place them in the correct tier:
 
 ```
-TIER 1: Primitives (raw values)
-└── color-blue-500: #3B82F6
+TIER 1: Primitives (raw values, in color_base/)
+└── color.accent.600: { "value": "#16b087", "type": "color" }
 
-TIER 2: Semantic (intent-based, reference primitives)
-└── color-action-primary-background: {color-blue-500}
+TIER 2: Semantic (intent-based, reference primitives, in color_theme/)
+└── component.button.emphasis.primary.background: { "value": "{color.accent.600}", "type": "color" }
 
-TIER 3: Component (specific to components, reference semantic)
-└── component-button-primary-background: {color-action-primary-background}
+TIER 3: Component Sizing (in component/)
+└── button.size.md.height: { "value": 40, "type": "number" }
 ```
 
 **Developers should only use Tier 2 and Tier 3 tokens.**
@@ -275,62 +294,99 @@ TIER 3: Component (specific to components, reference semantic)
 
 ### 1. Creating Duplicate Tokens
 
-❌ **Wrong:**
+**Wrong:**
 ```json
 {
-  "button-background": { "$value": "#3B82F6" },
-  "cta-background": { "$value": "#3B82F6" }
+  "button_background": { "value": "#16b087" },
+  "cta_background": { "value": "#16b087" }
 }
 ```
 
-✅ **Right:**
+**Right:**
 ```json
 {
-  "color-action-primary-background": { "$value": "#3B82F6" }
+  "component": {
+    "button": {
+      "emphasis": {
+        "primary": {
+          "background": { "value": "{color.accent.600}", "type": "color" }
+        }
+      }
+    }
+  }
 }
 ```
 
 ### 2. Using Non-Semantic Names
 
-❌ **Wrong:**
+**Wrong:**
 ```json
 {
-  "color-dark-blue": { "$value": "#1E40AF" }
+  "color": {
+    "teal": { "value": "#16b087" }
+  }
 }
 ```
 
-✅ **Right:**
+**Right:**
 ```json
 {
-  "color-action-primary-background-active": { "$value": "#1E40AF" }
+  "color": {
+    "accent": {
+      "600": { "value": "#16b087", "type": "color" }
+    }
+  }
 }
 ```
 
 ### 3. Skipping the Primitive Layer
 
-❌ **Wrong:**
+**Wrong:**
 ```json
 {
-  "button-background": { "$value": "#3B82F6" },
-  "link-color": { "$value": "#3B82F6" }
+  "button_background": { "value": "#16b087" },
+  "link_color": { "value": "#16b087" }
 }
 ```
 
-✅ **Right:**
+**Right:**
 ```json
 {
   "color": {
-    "blue": {
-      "500": { "$value": "#3B82F6" }
-    },
-    "action": {
-      "primary": {
-        "background": { "$value": "{color.blue.500}" }
-      }
-    },
-    "text": {
-      "link": { "$value": "{color.blue.500}" }
+    "accent": {
+      "600": { "value": "#16b087", "type": "color" }
     }
+  },
+  "component": {
+    "button": {
+      "emphasis": {
+        "primary": {
+          "background": { "value": "{color.accent.600}", "type": "color" }
+        }
+      }
+    }
+  }
+}
+```
+
+### 4. Using Wrong Format
+
+**Wrong (W3C format):**
+```json
+{
+  "color": {
+    "$value": "#16b087",
+    "$type": "color"
+  }
+}
+```
+
+**Right (Tokens Studio format):**
+```json
+{
+  "color": {
+    "value": "#16b087",
+    "type": "color"
   }
 }
 ```

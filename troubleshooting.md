@@ -32,7 +32,7 @@ Common issues and solutions for the Angel Design Token system.
 
 2. **Update the plugin**
    - Go to Plugins → Manage plugins
-   - Check for updates to "Design Tokens (W3C) Export"
+   - Check for updates to "Variables Export" by Kel Browner
 
 3. **Check for conflicting plugins**
    - Disable other token-related plugins
@@ -58,15 +58,15 @@ Common issues and solutions for the Angel Design Token system.
 
 2. **Check variable modes**
    - Export all modes or select the correct mode
-   - Default mode is usually "Mode 1"
+   - Light/dark modes export separately
 
 3. **Check collection selection**
    - Ensure the correct variable collection is selected
    - Some plugins require explicit selection
 
 4. **Try alternative plugin**
-   - "Variables Export" by another author
    - "Design Tokens" by Lukas Oppermann
+   - "Token Studio" plugin
 
 ---
 
@@ -98,25 +98,25 @@ Common issues and solutions for the Angel Design Token system.
 
 **Symptoms:**
 - Red X on PR checks
-- "Schema validation failed"
+- "Format validation failed"
 - "Naming convention error"
 
 **Solutions:**
 
-1. **Schema validation errors**
+1. **Format validation errors**
    ```
-   Error: Invalid token structure at 'color.blue.500'
-   Expected: { "$value": ..., "$type": ... }
+   Error: Invalid token structure at 'color.accent.600'
+   Expected: { "value": ..., "type": ... }
    ```
 
-   **Fix:** Ensure all tokens have required `$value` and `$type` fields:
+   **Fix:** Ensure all tokens have required `value` and `type` fields:
    ```json
    {
      "color": {
-       "blue": {
-         "500": {
-           "$value": "#3B82F6",
-           "$type": "color"
+       "accent": {
+         "600": {
+           "value": "#16b087",
+           "type": "color"
          }
        }
      }
@@ -125,36 +125,43 @@ Common issues and solutions for the Angel Design Token system.
 
 2. **Naming convention errors**
    ```
-   Error: Invalid token name 'Blue500' - must be lowercase with hyphens
+   Error: Invalid token name 'AccentColor' - use nested lowercase structure
    ```
 
-   **Fix:** Use lowercase and hyphens:
+   **Fix:** Use nested lowercase structure:
    ```json
-   // ❌ Wrong
-   "Blue500": { ... }
-   "blue_500": { ... }
+   // Wrong
+   "AccentColor": { ... }
+   "accent-color": { ... }
 
-   // ✅ Correct
-   "blue-500": { ... }
-   // Or in nested structure:
-   "blue": { "500": { ... } }
+   // Correct (nested structure)
+   "color": {
+     "accent": {
+       "600": { "value": "#16b087", "type": "color" }
+     }
+   }
    ```
 
 3. **Reference errors**
    ```
-   Error: Unresolved reference '{color.blue.600}'
+   Error: Unresolved reference '{color.accent.700}'
    ```
 
    **Fix:** Ensure referenced token exists:
    ```json
    {
      "color": {
-       "blue": {
-         "600": { "$value": "#2563EB", "$type": "color" }
-       },
-       "action": {
-         "primary": {
-           "background-hover": { "$value": "{color.blue.600}", "$type": "color" }
+       "accent": {
+         "600": { "value": "#16b087", "type": "color" },
+         "700": { "value": "#129973", "type": "color" }
+       }
+     },
+     "component": {
+       "button": {
+         "emphasis": {
+           "primary": {
+             "background_hover": { "value": "{color.accent.700}", "type": "color" }
+           }
          }
        }
      }
@@ -199,7 +206,7 @@ Common issues and solutions for the Angel Design Token system.
 1. **Check JSON syntax**
    ```bash
    # Validate JSON locally
-   cat tokens/colors.json | jq .
+   cat tokens/color_base/tokens.json | jq .
    ```
 
    Common issues:
@@ -209,7 +216,7 @@ Common issues and solutions for the Angel Design Token system.
 
 2. **Check token references**
    ```
-   Error: Could not resolve reference {color.primary.500}
+   Error: Could not resolve reference {color.accent.500}
    ```
 
    Ensure the referenced token path matches exactly.
@@ -274,10 +281,41 @@ Error: Cannot find module '@angel/tokens-react-native'
 
 ---
 
+### React Native: Token Path Not Found
+
+**Symptoms:**
+```typescript
+// This fails
+tokens.color.accent.600  // undefined
+```
+
+**Solutions:**
+
+1. **Check correct token path**
+   ```typescript
+   // Correct usage
+   import { tokens } from '@angel/tokens-react-native';
+
+   // Access base colors
+   tokens.color.accent[600]  // Note: numeric key needs brackets
+
+   // Access semantic colors
+   tokens.surface.default
+   tokens.text.primary
+
+   // Access component colors
+   tokens.component.button.emphasis.primary.background
+
+   // Access button sizes
+   tokens.button.size.md.height
+   ```
+
+---
+
 ### Web: CSS Variables Not Working
 
 **Symptoms:**
-- `var(--color-action-primary)` shows as invalid
+- `var(--component-button-emphasis-primary-background)` shows as invalid
 - Colors not applying
 
 **Solutions:**
@@ -295,6 +333,16 @@ Error: Cannot find module '@angel/tokens-react-native'
 3. **Check :root scope**
    - Tokens are defined on `:root`
    - Ensure no conflicting `:root` declarations
+
+4. **Check variable name**
+   ```css
+   /* Correct token names */
+   var(--color-accent-600)
+   var(--surface-default)
+   var(--component-button-emphasis-primary-background)
+   var(--button-size-md-height)
+   var(--spacing-md)
+   ```
 
 ---
 
@@ -319,9 +367,19 @@ Error: 'AngelTokens' is not a function
    m.tokens = AngelTokens
    ```
 
-3. **Check for syntax errors in .brs file**
+3. **Check token access**
+   ```brightscript
+   ' Use PascalCase for token names
+   m.tokens.ColorAccent600
+   m.tokens.SurfaceDefault
+   m.tokens.ComponentButtonEmphasisPrimaryBackground
+   m.tokens.ButtonSizeLgHeight
+   m.tokens.SpacingMd
+   ```
+
+4. **Check for syntax errors in .brs file**
    - Open file and look for malformed strings
-   - Hex colors should be `"0xFFFFFFFF"` format
+   - Hex colors should be `"0x16b087FF"` format
 
 ---
 
@@ -329,7 +387,7 @@ Error: 'AngelTokens' is not a function
 
 **Symptoms:**
 ```
-error: resource color/color_action_primary_background not found
+error: resource color/component_button_emphasis_primary_background not found
 ```
 
 **Solutions:**
@@ -345,6 +403,16 @@ error: resource color/color_action_primary_background not found
    ```bash
    ./gradlew clean
    ./gradlew assembleDebug
+   ```
+
+4. **Check resource names**
+   ```kotlin
+   // Android uses snake_case
+   R.color.color_accent_600
+   R.color.surface_default
+   R.color.component_button_emphasis_primary_background
+   R.dimen.button_size_lg_height
+   R.dimen.spacing_md
    ```
 
 ---
@@ -413,7 +481,7 @@ error: resource color/color_action_primary_background not found
 
 **Symptoms:**
 ```typescript
-Property 'colors' does not exist on type 'typeof import("@angel/tokens-react-native")'
+Property 'accent' does not exist on type 'typeof import("@angel/tokens-react-native")'
 ```
 
 **Solutions:**
@@ -423,13 +491,15 @@ Property 'colors' does not exist on type 'typeof import("@angel/tokens-react-nat
    npm update @angel/tokens-react-native
    ```
 
-2. **Check import**
+2. **Check import and access**
    ```typescript
-   // Correct
-   import { theme } from '@angel/tokens-react-native';
+   // Correct import
+   import { tokens } from '@angel/tokens-react-native';
 
-   // Not
-   import theme from '@angel/tokens-react-native';
+   // Correct access
+   tokens.color.accent[600]  // Use brackets for numeric keys
+   tokens.surface.default
+   tokens.component.button.emphasis.primary.background
    ```
 
 3. **Restart TypeScript server**
@@ -450,14 +520,18 @@ Type 'number' is not assignable to type 'string'
    - A major version may have changed types
    - See [versioning docs](./docs/versioning_and_releases.md)
 
-2. **Update your code**
+2. **Token values are now numbers**
    ```typescript
-   // If token changed from string to number
-   // Before
-   transform: `scale(${tokens.focusScale})`
+   // Spacing and sizing tokens are numbers
+   const height = tokens.button.size.md.height;  // 40 (number)
 
-   // After (same code works, type is just more accurate)
-   transform: `scale(${tokens.focusScale})`
+   // Use directly in StyleSheet
+   const styles = StyleSheet.create({
+     button: {
+       height: tokens.button.size.md.height,  // Works!
+       padding: tokens.spacing.md,  // Works!
+     }
+   });
    ```
 
 3. **Pin to previous version**

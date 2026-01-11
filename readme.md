@@ -14,9 +14,17 @@ The single source of truth for design tokens across all Angel Studios platforms.
 npm install @angel/tokens-react-native
 ```
 ```typescript
-import { theme } from '@angel/tokens-react-native';
+import { tokens } from '@angel/tokens-react-native';
 
-<View style={{ backgroundColor: theme.colors.action.primary.background }} />
+<View style={{
+  backgroundColor: tokens.surface.default,
+  padding: tokens.spacing.md  // 10
+}} />
+
+<Button
+  backgroundColor={tokens.component.button.emphasis.primary.background}
+  height={tokens.button.size.md.height}  // 40
+/>
 ```
 
 ### React Web
@@ -26,7 +34,12 @@ npm install @angel/tokens-web
 ```css
 @import '@angel/tokens-web/tokens.css';
 
-.button { background-color: var(--color-action-primary-background); }
+.button-primary {
+  background-color: var(--component-button-emphasis-primary-background);
+  height: var(--button-size-md-height);  /* 40px */
+  padding: var(--button-size-md-padding-vertical) var(--button-size-md-padding-horizontal);
+  border-radius: var(--button-size-md-border-radius);  /* 12px */
+}
 ```
 
 ### All Platforms
@@ -37,7 +50,7 @@ npm install @angel/tokens-web
 | React Web | `@angel/tokens-web` | [Guide](./docs/consumption_guide.md#react-web) |
 | Roku | `packages/roku` | [Guide](./docs/consumption_guide.md#roku-brightscript) |
 | tvOS | `AngelTokens (SPM)` | [Guide](./docs/consumption_guide.md#tvos-swift) |
-| Android TV | `angel-tokens (Maven)` | [Guide](./docs/consumption_guide.md#android-tv-kotlinjava) |
+| Android TV | `angel-tokens (Maven)` | [Guide](./docs/consumption_guide.md#android-tv-kotlin) |
 | Xbox | `AngelTokens (NuGet)` | [Guide](./docs/consumption_guide.md#xbox-cxaml) |
 | Vizio/Xumo | `@angel/tokens-web-tv` | [Guide](./docs/consumption_guide.md#vizio-smartcast--xumotv-javascript) |
 
@@ -50,7 +63,7 @@ Figma → Export JSON → GitHub → Style Dictionary → Platform Packages → 
 ```
 
 1. **Design** - Designers update variables in Figma
-2. **Export** - Export tokens as JSON using free Figma plugin
+2. **Export** - Export tokens as JSON using "Variables Export" plugin (free)
 3. **Upload** - Create PR with new token files
 4. **Transform** - Style Dictionary generates platform-specific outputs
 5. **Deploy** - Packages published, apps auto-rebuild
@@ -59,36 +72,58 @@ Figma → Export JSON → GitHub → Style Dictionary → Platform Packages → 
 
 ---
 
+## Token Categories
+
+| Category | Description | Example |
+|----------|-------------|---------|
+| **color** | Base color palette | `color.accent.600` → `#16b087` |
+| **surface** | Background colors (themed) | `surface.default`, `surface.overlay` |
+| **text** | Text colors (themed) | `text.primary`, `text.secondary` |
+| **spacing** | Spacing scale | `spacing.md` → `10`, `spacing.4xl` → `24` |
+| **button.size** | Button sizing | `button.size.md.height` → `40` |
+| **component.button** | Button colors (themed) | `component.button.emphasis.primary.background` |
+| **border_radius** | Corner rounding | `border_radius.rounded_lg` → `12` |
+| **font** | Typography | `font.size.body.md` → `16` (desktop) / `20` (TV) |
+
+---
+
 ## Repository Structure
 
 ```
 angel-design-tokens/
-├── tokens/                    # Source token JSON files
-│   ├── colors.json
-│   ├── typography.json
-│   ├── spacing.json
-│   └── tv-specific.json
-├── fonts/                     # Font files
-│   ├── AngelSans-Regular.ttf
-│   └── AngelSans-Regular.woff2
-├── packages/                  # Generated platform packages
+├── tokens/                        # Figma exports go here
+│   ├── $metadata.json
+│   ├── $themes.json
+│   ├── color_base/
+│   │   └── tokens.json            # neutral, accent, guild, danger, etc.
+│   ├── color_theme/
+│   │   ├── light.json             # surface, text, component colors
+│   │   └── dark.json
+│   ├── dimensions/
+│   │   └── variables.json         # spacing, border_radius, viewports
+│   ├── component/
+│   │   └── variables.json         # button.size.xs/sm/md/lg/xl
+│   └── typography/
+│       ├── mobile.json
+│       ├── tablet.json
+│       ├── desktop.json
+│       └── tv.json                # ~1.25x larger for 10-foot UI
+├── fonts/                         # Font source files
+│   ├── WhitneySSm-Medium.ttf
+│   ├── WhitneySSm-Semibold.ttf
+│   ├── WhitneySSm-Bold.ttf
+│   └── web/
+│       └── WhitneySSm-Medium.woff2
+├── packages/                      # Generated platform packages
 │   ├── react-native/
 │   ├── web/
 │   ├── roku/
 │   ├── tvos/
-│   ├── android-tv/
+│   ├── android/
 │   ├── xbox/
 │   └── web-tv/
-├── docs/                      # Documentation
-│   ├── vision_and_scope.md
-│   ├── architecture_overview.md
-│   ├── token_structure_and_naming.md
-│   ├── transformation_logic.md
-│   ├── ci_cd_workflow.md
-│   ├── consumption_guide.md
-│   └── versioning_and_releases.md
-├── style-dictionary.config.mjs
-└── package.json
+├── docs/                          # Documentation
+└── style-dictionary.config.mjs
 ```
 
 ---
@@ -104,9 +139,9 @@ angel-design-tokens/
 | [CI/CD Workflow](./docs/ci_cd_workflow.md) | GitHub Actions, automation |
 | [Consumption Guide](./docs/consumption_guide.md) | How to use tokens in your app |
 | [Versioning](./docs/versioning_and_releases.md) | Breaking changes, releases |
-| [Contributing](./CONTRIBUTING.md) | How to propose new tokens |
-| [Mapping](./MAPPING.md) | Figma names → Code names |
-| [Troubleshooting](./TROUBLESHOOTING.md) | Common issues and fixes |
+| [Contributing](./contributing.md) | How to propose new tokens |
+| [Mapping](./mapping.md) | Figma names → Code names |
+| [Troubleshooting](./troubleshooting.md) | Common issues and fixes |
 
 ---
 
@@ -115,21 +150,23 @@ angel-design-tokens/
 ### Updating Tokens
 
 1. Make changes in Figma Variables panel
-2. Run "Design Tokens (W3C) Export" plugin
+2. Run "Variables Export" plugin by Kel Browner (free)
 3. Download the JSON file
 4. Create a PR in this repo with the new JSON
 
-[See detailed workflow →](./docs/architecture_overview.md#step-2-export-manual-process)
+[See detailed workflow →](./docs/architecture_overview.md#export-process-manual)
 
 ### Naming Conventions
 
+Tokens use nested structure with underscores for states:
+
 ```
-[Category]-[Type]-[Item]-[Subitem]-[State]
+category.type.item.subitem_state
 
 Examples:
-color-blue-500
-color-action-primary-background-hover
-spacing-padding-md
+color.accent.600
+component.button.emphasis.primary.background_hover
+button.size.md.height
 ```
 
 [See full naming guide →](./docs/token_structure_and_naming.md)
@@ -163,7 +200,7 @@ Token changes trigger automatic rebuilds. You'll receive:
 
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+We welcome contributions! See [contributing.md](./contributing.md) for:
 - How to propose new tokens
 - PR requirements
 - Review process
@@ -174,7 +211,7 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
 
 - **Questions**: #design-system on Slack
 - **Bugs**: [Create an issue](https://github.com/angel-studios/angel-design-tokens/issues)
-- **Sync problems**: See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+- **Sync problems**: See [troubleshooting.md](./troubleshooting.md)
 
 ---
 

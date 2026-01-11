@@ -16,7 +16,7 @@ This document details the GitHub Actions workflows that automate the design toke
     TRIGGER              VALIDATE              BUILD                DEPLOY
 ┌─────────────┐      ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
 │             │      │             │      │             │      │             │
-│  Push to    │ ───▶ │  Schema     │ ───▶ │   Style    │ ───▶ │  Publish    │
+│  Push to    │ ───▶ │  Format     │ ───▶ │   Style    │ ───▶ │  Publish    │
 │  tokens/    │      │  Validation │      │  Dictionary │      │  Packages   │
 │             │      │             │      │             │      │             │
 └─────────────┘      └─────────────┘      └─────────────┘      └──────┬──────┘
@@ -42,7 +42,7 @@ This document details the GitHub Actions workflows that automate the design toke
 
 ### 1. Token Validation (`validate-tokens.yml`)
 
-Runs on every PR that modifies tokens. Validates JSON schema and naming conventions.
+Runs on every PR that modifies tokens. Validates JSON format and naming conventions.
 
 ```yaml
 # .github/workflows/validate-tokens.yml
@@ -69,8 +69,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Validate JSON schema
-        run: pnpm run validate:schema
+      - name: Validate JSON format
+        run: pnpm run validate:format
 
       - name: Validate naming conventions
         run: pnpm run validate:naming
@@ -84,7 +84,7 @@ jobs:
           pnpm run build:tokens
           echo "## Generated Token Preview" >> $GITHUB_STEP_SUMMARY
           echo '```css' >> $GITHUB_STEP_SUMMARY
-          head -50 packages/web/dist/tokens.css >> $GITHUB_STEP_SUMMARY
+          head -50 packages/web/tokens.css >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Comment on PR
@@ -92,7 +92,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const preview = fs.readFileSync('packages/web/dist/tokens.css', 'utf8');
+            const preview = fs.readFileSync('packages/web/tokens.css', 'utf8');
             const lines = preview.split('\n').slice(0, 30).join('\n');
 
             github.rest.issues.createComment({
@@ -175,7 +175,7 @@ jobs:
       - name: Copy fonts to packages
         run: |
           # Copy fonts to each package
-          for pkg in react-native web roku tvos android-tv xbox web-tv; do
+          for pkg in react-native web roku tvos android xbox web-tv; do
             mkdir -p packages/$pkg/fonts
             cp fonts/*.ttf packages/$pkg/fonts/ 2>/dev/null || true
             cp fonts/*.woff* packages/$pkg/fonts/ 2>/dev/null || true
@@ -214,7 +214,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: token-packages
-          path: packages/*/dist/
+          path: packages/*/
 
   notify:
     needs: build
@@ -230,7 +230,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "🎨 Design Tokens Updated"
+                    "text": "Design Tokens Updated"
                   }
                 },
                 {
@@ -360,16 +360,15 @@ jobs:
           # Compare token files
           BREAKING_CHANGES=""
 
-          for file in tokens/*.json; do
-            filename=$(basename $file)
-            if [ -f "main-branch/tokens/$filename" ]; then
+          for file in tokens/**/*.json; do
+            if [ -f "main-branch/$file" ]; then
               # Check for removed tokens
-              REMOVED=$(jq -r 'paths | join(".")' main-branch/tokens/$filename | sort > /tmp/old.txt && \
+              REMOVED=$(jq -r 'paths | join(".")' main-branch/$file | sort > /tmp/old.txt && \
                         jq -r 'paths | join(".")' $file | sort > /tmp/new.txt && \
                         comm -23 /tmp/old.txt /tmp/new.txt)
 
               if [ -n "$REMOVED" ]; then
-                BREAKING_CHANGES="$BREAKING_CHANGES\n### Removed from $filename:\n$REMOVED"
+                BREAKING_CHANGES="$BREAKING_CHANGES\n### Removed from $file:\n$REMOVED"
               fi
             fi
           done
@@ -405,7 +404,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## ⚠️ Breaking Changes Detected\n\nThe following tokens have been removed or renamed:\n${breaking}\n\n**Action Required:** Please ensure all consuming applications are updated before merging.`
+              body: `## Breaking Changes Detected\n\nThe following tokens have been removed or renamed:\n${breaking}\n\n**Action Required:** Please ensure all consuming applications are updated before merging.`
             });
 ```
 
@@ -458,7 +457,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'chore: update design tokens to v${{ github.event.client_payload.version }}'
-          title: '🎨 Update Design Tokens to v${{ github.event.client_payload.version }}'
+          title: 'Update Design Tokens to v${{ github.event.client_payload.version }}'
           body: |
             This PR updates the design tokens package to version ${{ github.event.client_payload.version }}.
 
@@ -476,123 +475,53 @@ jobs:
 
 ---
 
-### 5. Staging to Production Promotion
-
-```yaml
-# .github/workflows/promote-production.yml
-name: Promote to Production
-
-on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to promote'
-        required: true
-      platforms:
-        description: 'Platforms to promote (comma-separated or "all")'
-        required: true
-        default: 'all'
-
-jobs:
-  promote:
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - name: Verify staging tests passed
-        run: |
-          # Check that all staging tests passed for this version
-          echo "Verifying staging tests for v${{ inputs.version }}..."
-
-      - name: Promote React Native
-        if: contains(inputs.platforms, 'react-native') || inputs.platforms == 'all'
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
-          repository: angel-studios/angel-mobile-app
-          event-type: promote-production
-          client-payload: '{"version": "${{ inputs.version }}"}'
-
-      - name: Promote React Web
-        if: contains(inputs.platforms, 'web') || inputs.platforms == 'all'
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
-          repository: angel-studios/angel-web
-          event-type: promote-production
-          client-payload: '{"version": "${{ inputs.version }}"}'
-
-      # ... (repeat for other platforms)
-
-      - name: Notify completion
-        uses: slackapi/slack-github-action@v1
-        with:
-          payload: |
-            {
-              "text": "✅ Design Tokens v${{ inputs.version }} promoted to production for: ${{ inputs.platforms }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-```
-
----
-
 ## Automated Tests
 
-### Schema Validation Test
+### Format Validation Test
 
 ```javascript
-// scripts/validate-schema.js
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+// scripts/validate-format.js
 import { glob } from 'glob';
 import { readFileSync } from 'fs';
 
-const schema = {
-  type: 'object',
-  additionalProperties: {
-    oneOf: [
-      { $ref: '#/$defs/tokenValue' },
-      { $ref: '#/$defs/tokenGroup' }
-    ]
-  },
-  $defs: {
-    tokenValue: {
-      type: 'object',
-      required: ['$value', '$type'],
-      properties: {
-        $value: {},
-        $type: {
-          enum: ['color', 'dimension', 'fontFamily', 'fontWeight', 'number', 'shadow', 'string']
-        },
-        $description: { type: 'string' }
-      }
-    },
-    tokenGroup: {
-      type: 'object',
-      additionalProperties: {
-        oneOf: [
-          { $ref: '#/$defs/tokenValue' },
-          { $ref: '#/$defs/tokenGroup' }
-        ]
+function validateTokenFormat(obj, path = []) {
+  const errors = [];
+
+  for (const [key, value] of Object.entries(obj)) {
+    const currentPath = [...path, key];
+
+    if (typeof value === 'object' && value !== null) {
+      // Check if this is a token (has value and type)
+      if ('value' in value) {
+        if (!('type' in value)) {
+          errors.push(`Missing 'type' at ${currentPath.join('.')}`);
+        }
+      } else {
+        // Recurse into nested objects
+        errors.push(...validateTokenFormat(value, currentPath));
       }
     }
   }
-};
 
-const ajv = new Ajv({ allErrors: true });
-addFormats(ajv);
-const validate = ajv.compile(schema);
+  return errors;
+}
 
 const files = glob.sync('tokens/**/*.json');
 let hasErrors = false;
 
 for (const file of files) {
+  // Skip metadata files
+  if (file.includes('$metadata') || file.includes('$themes')) continue;
+
   const content = JSON.parse(readFileSync(file, 'utf8'));
-  if (!validate(content)) {
-    console.error(`❌ ${file}:`, validate.errors);
+  const errors = validateTokenFormat(content);
+
+  if (errors.length > 0) {
+    console.error(`Errors in ${file}:`);
+    errors.forEach(e => console.error(`  ${e}`));
     hasErrors = true;
   } else {
-    console.log(`✅ ${file}`);
+    console.log(`Valid: ${file}`);
   }
 }
 
@@ -606,19 +535,24 @@ process.exit(hasErrors ? 1 : 0);
 import { glob } from 'glob';
 import { readFileSync } from 'fs';
 
-const NAMING_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+// Allow lowercase with underscores (for states like _hover)
+const NAMING_PATTERN = /^[a-z][a-z0-9_]*$/;
 
 function validateNames(obj, path = []) {
   const errors = [];
 
   for (const [key, value] of Object.entries(obj)) {
-    if (key.startsWith('$')) continue; // Skip metadata
+    // Skip metadata keys
+    if (key.startsWith('$')) continue;
 
-    if (!NAMING_PATTERN.test(key)) {
+    // Numeric keys (like color scale 50, 100, etc.) are allowed
+    if (/^\d+$/.test(key)) {
+      // Valid numeric key
+    } else if (!NAMING_PATTERN.test(key)) {
       errors.push(`Invalid name: ${[...path, key].join('.')}`);
     }
 
-    if (typeof value === 'object' && !value.$value) {
+    if (typeof value === 'object' && !('value' in value)) {
       errors.push(...validateNames(value, [...path, key]));
     }
   }
@@ -630,15 +564,17 @@ const files = glob.sync('tokens/**/*.json');
 let hasErrors = false;
 
 for (const file of files) {
+  if (file.includes('$metadata') || file.includes('$themes')) continue;
+
   const content = JSON.parse(readFileSync(file, 'utf8'));
   const errors = validateNames(content);
 
   if (errors.length > 0) {
-    console.error(`❌ ${file}:`);
+    console.error(`Naming errors in ${file}:`);
     errors.forEach(e => console.error(`   ${e}`));
     hasErrors = true;
   } else {
-    console.log(`✅ ${file}`);
+    console.log(`Valid naming: ${file}`);
   }
 }
 
@@ -680,4 +616,4 @@ Production: Add ~15 minutes for approval + promotion workflow
 
 - [Architecture Overview](./architecture_overview.md)
 - [Versioning and Releases](./versioning_and_releases.md)
-- [Troubleshooting](../TROUBLESHOOTING.md)
+- [Troubleshooting](../troubleshooting.md)

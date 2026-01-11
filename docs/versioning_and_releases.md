@@ -70,26 +70,28 @@ Examples:
 
 ### Deprecation Example
 
-When renaming `button-bg` to `button-primary-background`:
+When renaming `button_bg` to `component.button.emphasis.primary.background`:
 
 **Step 1: Add deprecation (v1.5.0)**
 ```json
 {
   "component": {
     "button": {
-      "bg": {
-        "$value": "{color.action.primary.background}",
-        "$type": "color",
-        "$deprecated": true,
-        "$deprecatedMessage": "Use 'component.button.primary.background' instead. Will be removed in v2.0.0"
-      },
-      "primary": {
-        "background": {
-          "$value": "{color.action.primary.background}",
-          "$type": "color"
+      "emphasis": {
+        "primary": {
+          "background": {
+            "value": "{color.accent.600}",
+            "type": "color"
+          }
         }
       }
     }
+  },
+  "button_bg": {
+    "value": "{color.accent.600}",
+    "type": "color",
+    "$deprecated": true,
+    "$deprecatedMessage": "Use 'component.button.emphasis.primary.background' instead. Will be removed in v2.0.0"
   }
 }
 ```
@@ -97,8 +99,8 @@ When renaming `button-bg` to `button-primary-background`:
 **Step 2: Build outputs both tokens**
 ```css
 /* Generated CSS */
---component-button-bg: #3B82F6; /* DEPRECATED: Use --component-button-primary-background */
---component-button-primary-background: #3B82F6;
+--button-bg: #16b087; /* DEPRECATED: Use --component-button-emphasis-primary-background */
+--component-button-emphasis-primary-background: #16b087;
 ```
 
 **Step 3: Communicate**
@@ -109,7 +111,7 @@ The following tokens are deprecated and will be removed in v2.0.0:
 
 | Old Token | New Token | Removal Date |
 |-----------|-----------|--------------|
-| `button-bg` | `button-primary-background` | Q2 2024 |
+| `button_bg` | `component.button.emphasis.primary.background` | Q2 2024 |
 
 Please update your code to use the new tokens.
 ```
@@ -119,10 +121,12 @@ Please update your code to use the new tokens.
 {
   "component": {
     "button": {
-      "primary": {
-        "background": {
-          "$value": "{color.action.primary.background}",
-          "$type": "color"
+      "emphasis": {
+        "primary": {
+          "background": {
+            "value": "{color.accent.600}",
+            "type": "color"
+          }
         }
       }
     }
@@ -201,35 +205,36 @@ All notable changes to this project will be documented in this file.
 ## [2.0.0] - 2024-03-15
 
 ### BREAKING CHANGES
-- Removed deprecated `button-bg` token (use `button-primary-background`)
-- Renamed `color-grey-*` to `color-gray-*`
+- Removed deprecated `button_bg` token (use `component.button.emphasis.primary.background`)
+- Renamed `color.grey.*` to `color.neutral.*`
 
 ### Added
-- New `tv.animation` tokens for motion design
+- New `button.size.tv_xl` tokens for large TV buttons
 
 ### Changed
-- Updated `color-action-primary-background` from #3B82F6 to #2563EB
+- Updated `color.accent.600` from #129973 to #16b087
 
 ### Deprecated
-- `spacing-padding-base` (use `spacing-padding-md`)
+- `spacing_base` (use `spacing.md`)
 
 ## [1.5.0] - 2024-02-01
 
 ### Added
-- TV-specific tokens (`tv.layout`, `tv.focus`, `tv.safeArea`)
-- Component tokens for buttons and cards
+- Full button component token structure with 5 sizes (xs-xl)
+- Component button color variants (primary, brand, secondary, transparent, ghost)
+- TV typography tokens (~1.25x larger)
 
 ### Deprecated
-- `button-bg` (use `button-primary-background`, removal in v2.0.0)
+- `button_bg` (use `component.button.emphasis.primary.background`, removal in v2.0.0)
 
 ## [1.4.0] - 2024-01-15
 
 ### Added
-- Shadow/elevation tokens
-- Typography composite styles
+- Spacing scale from 4xs to 27xl
+- Border radius tokens (rounded_none to rounded_full)
 
 ### Fixed
-- Corrected `color-gray-500` value
+- Corrected `color.neutral.500` value
 ```
 
 ---
@@ -253,15 +258,19 @@ v2.0 includes breaking changes. This guide helps you migrate.
 
 | Old Token (v1.x) | New Token (v2.0) |
 |------------------|------------------|
-| `button-bg` | `button-primary-background` |
-| `button-text` | `button-primary-text` |
-| `color-grey-*` | `color-gray-*` |
+| `button_bg` | `component.button.emphasis.primary.background` |
+| `button_text` | `component.button.emphasis.primary.text` |
+| `color.grey.*` | `color.neutral.*` |
 
-**Migration Script:**
+**Migration Script (CSS):**
 ```bash
-# For CSS files
-find . -name "*.css" -exec sed -i '' 's/--button-bg/--button-primary-background/g' {} \;
-find . -name "*.css" -exec sed -i '' 's/--color-grey/--color-gray/g' {} \;
+find . -name "*.css" -exec sed -i '' 's/--button-bg/--component-button-emphasis-primary-background/g' {} \;
+find . -name "*.css" -exec sed -i '' 's/--color-grey/--color-neutral/g' {} \;
+```
+
+**Migration Script (React Native):**
+```bash
+find . -name "*.ts" -name "*.tsx" -exec sed -i '' 's/tokens\.buttonBg/tokens.component.button.emphasis.primary.background/g' {} \;
 ```
 
 ### 2. Removed Tokens
@@ -270,23 +279,16 @@ The following tokens were deprecated in v1.5 and removed in v2.0:
 
 | Removed Token | Replacement |
 |---------------|-------------|
-| `spacing-base` | `spacing-4` |
-| `font-primary` | `font-family-sans` |
+| `spacing_base` | `spacing.md` |
+| `font_primary` | `font.family.body` |
 
-### 3. Type Changes
+### 3. Structure Changes
 
-| Token | Old Type | New Type |
-|-------|----------|----------|
-| `focus-scale` | `string` ("1.05") | `number` (1.05) |
-
-**TypeScript Fix:**
-```typescript
-// Before (v1.x)
-transform: `scale(${tokens.focusScale})`
-
-// After (v2.0) - no change needed, type just more accurate
-transform: `scale(${tokens.focusScale})`
-```
+| v1.x Path | v2.0 Path |
+|-----------|-----------|
+| `tokens.colors.accent600` | `tokens.color.accent[600]` |
+| `tokens.spacing.md` | `tokens.spacing.md` (unchanged) |
+| `tokens.button.height.md` | `tokens.button.size.md.height` |
 
 ## Step-by-Step Migration
 
@@ -408,4 +410,4 @@ git push origin main
 
 - [CI/CD Workflow](./ci_cd_workflow.md)
 - [Token Structure and Naming](./token_structure_and_naming.md)
-- [Contributing](../CONTRIBUTING.md)
+- [Contributing](../contributing.md)

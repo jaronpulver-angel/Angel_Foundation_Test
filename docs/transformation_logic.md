@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document explains how design tokens are transformed from their source format (W3C DTCG JSON) into platform-specific outputs. Since Angel Studios supports Web, React Native, and multiple TV platforms, tokens must be transformed differently for each.
+This document explains how design tokens are transformed from their source format (Tokens Studio JSON exported from Figma) into platform-specific outputs. Angel Studios supports 8 platforms, each requiring different output formats.
 
 ---
 
@@ -16,18 +16,18 @@ This document explains how design tokens are transformed from their source forma
      SOURCE TOKEN                    TRANSFORMS                    OUTPUT
 ┌─────────────────┐      ┌───────────────────────────┐      ┌─────────────────┐
 │                 │      │                           │      │                 │
-│  spacing: {     │      │  1. Parse W3C format      │      │  WEB (CSS):     │
+│  spacing: {     │      │  1. Parse Tokens Studio   │      │  WEB (CSS):     │
 │    md: {        │ ───▶ │  2. Resolve references    │ ───▶ │  --spacing-md:  │
-│      $value:    │      │  3. Apply transforms      │      │    1rem;        │
-│        "16px"   │      │  4. Format for platform   │      │                 │
+│      value: 10  │      │  3. Apply transforms      │      │    10px;        │
+│      type:      │      │  4. Format for platform   │      │                 │
+│        "number" │      │                           │      │                 │
 │    }            │      │                           │      │                 │
-│  }              │      │                           │      │                 │
-│                 │      └───────────────────────────┘      └─────────────────┘
+│  }              │      └───────────────────────────┘      └─────────────────┘
 │                 │                    │
 │                 │                    │                    ┌─────────────────┐
 │                 │                    │                    │                 │
 │                 │                    └──────────────────▶ │  REACT NATIVE:  │
-│                 │                    │                    │  spacingMd: 16  │
+│                 │                    │                    │  spacingMd: 10  │
 │                 │                    │                    │  (unitless)     │
 │                 │                    │                    │                 │
 │                 │                    │                    └─────────────────┘
@@ -35,7 +35,7 @@ This document explains how design tokens are transformed from their source forma
 │                 │                    │                    ┌─────────────────┐
 │                 │                    │                    │                 │
 │                 │                    └──────────────────▶ │  ROKU:          │
-│                 │                    │                    │  spacingMd: 16  │
+│                 │                    │                    │  SpacingMd: 10  │
 │                 │                    │                    │  (integer)      │
 │                 │                    │                    │                 │
 └─────────────────┘                    │                    └─────────────────┘
@@ -45,10 +45,41 @@ This document explains how design tokens are transformed from their source forma
                                        └──────────────────▶ │  ANDROID:       │
                                                             │  <dimen name=   │
                                                             │   "spacing_md"> │
-                                                            │    16dp</dimen> │
+                                                            │    10dp</dimen> │
                                                             │                 │
                                                             └─────────────────┘
 ```
+
+---
+
+## Source Token Format
+
+Angel Studios uses the **Tokens Studio** export format from Figma:
+
+```json
+{
+  "color": {
+    "accent": {
+      "600": {
+        "value": "#16b087",
+        "type": "color"
+      }
+    }
+  },
+  "spacing": {
+    "md": {
+      "value": 10,
+      "type": "number"
+    }
+  }
+}
+```
+
+**Key points:**
+- Uses `value` and `type` (NOT W3C `$value` / `$type`)
+- References use curly braces: `{color.accent.600}`
+- Values are raw numbers (no units in source)
+- Style Dictionary adds platform-appropriate units during transformation
 
 ---
 
@@ -58,35 +89,35 @@ This document explains how design tokens are transformed from their source forma
 
 | Platform | Input | Output | Unit | Example |
 |----------|-------|--------|------|---------|
-| **Web CSS** | `16px` | `1rem` | rem | `--spacing-md: 1rem;` |
-| **Web SCSS** | `16px` | `1rem` | rem | `$spacing-md: 1rem;` |
-| **React Native** | `16px` | `16` | unitless | `spacingMd: 16` |
-| **Roku** | `16px` | `16` | integer | `spacingMd: 16` |
-| **tvOS** | `16px` | `16.0` | CGFloat | `static let spacingMd: CGFloat = 16.0` |
-| **Android** | `16px` | `16dp` | dp | `<dimen name="spacing_md">16dp</dimen>` |
-| **Xbox** | `16px` | `16` | double | `<sys:Double x:Key="SpacingMd">16</sys:Double>` |
+| **Web CSS** | `10` | `10px` | px | `--spacing-md: 10px;` |
+| **Web SCSS** | `10` | `10px` | px | `$spacing-md: 10px;` |
+| **React Native** | `10` | `10` | unitless | `spacingMd: 10` |
+| **Roku** | `10` | `10` | integer | `SpacingMd: 10` |
+| **tvOS** | `10` | `10.0` | CGFloat | `static let md: CGFloat = 10.0` |
+| **Android** | `10` | `10dp` | dp | `<dimen name="spacing_md">10dp</dimen>` |
+| **Xbox** | `10` | `10` | double | `<sys:Double x:Key="SpacingMd">10</sys:Double>` |
 
 ### Color Tokens
 
 | Platform | Input | Output | Format | Example |
 |----------|-------|--------|--------|---------|
-| **Web CSS** | `#3B82F6` | `#3B82F6` | hex | `--color-blue-500: #3B82F6;` |
-| **React Native** | `#3B82F6` | `'#3B82F6'` | hex string | `colorBlue500: '#3B82F6'` |
-| **Roku** | `#3B82F6` | `0x3B82F6FF` | ARGB hex | `colorBlue500: "0x3B82F6FF"` |
-| **tvOS** | `#3B82F6` | `Color(hex:)` | UIColor | `static let blue500 = Color(hex: 0x3B82F6)` |
-| **Android** | `#3B82F6` | `#FF3B82F6` | ARGB hex | `<color name="blue_500">#FF3B82F6</color>` |
-| **Xbox** | `#3B82F6` | `#FF3B82F6` | ARGB hex | `<Color x:Key="Blue500">#FF3B82F6</Color>` |
+| **Web CSS** | `#16b087` | `#16b087` | hex | `--color-accent-600: #16b087;` |
+| **React Native** | `#16b087` | `'#16b087'` | hex string | `colorAccent600: '#16b087'` |
+| **Roku** | `#16b087` | `0x16b087FF` | ARGB hex | `ColorAccent600: "0x16b087FF"` |
+| **tvOS** | `#16b087` | `Color(hex:)` | SwiftUI Color | `static let accent600 = Color(hex: 0x16b087)` |
+| **Android** | `#16b087` | `#FF16b087` | ARGB hex | `<color name="color_accent_600">#FF16b087</color>` |
+| **Xbox** | `#16b087` | `#FF16b087` | ARGB hex | `<Color x:Key="ColorAccent600">#FF16b087</Color>` |
 
 ### Typography Tokens
 
-| Platform | Input | Output | Unit | Example |
-|----------|-------|--------|------|---------|
-| **Web CSS** | `16px` | `1rem` | rem | `--font-size-base: 1rem;` |
-| **React Native** | `16px` | `16` | number | `fontSizeBase: 16` |
-| **Roku** | `16px` | `32` | scaled | `fontSizeBase: 32` (2x for TV) |
-| **tvOS** | `16px` | `32.0` | CGFloat | `fontSizeBase: CGFloat = 32.0` (scaled) |
-| **Android** | `16px` | `16sp` | sp | `<dimen name="font_size_base">16sp</dimen>` |
-| **Xbox** | `16px` | `32` | double | `<sys:Double>32</sys:Double>` (scaled) |
+Angel Studios uses 4 viewport-specific typography files. TV uses ~1.25x larger font sizes:
+
+| Platform | Viewport File | Body MD Size | Unit |
+|----------|--------------|--------------|------|
+| **Mobile/RN** | `typography/mobile.json` | `16` | unitless |
+| **Tablet** | `typography/tablet.json` | `16` | unitless |
+| **Desktop/Web** | `typography/desktop.json` | `16` | px/rem |
+| **TV (all)** | `typography/tv.json` | `20` | integer |
 
 ---
 
@@ -98,26 +129,37 @@ This document explains how design tokens are transformed from their source forma
 // style-dictionary.config.mjs
 import StyleDictionary from 'style-dictionary';
 
-// Custom transform: px to rem (base 16px)
-StyleDictionary.registerTransform({
-  name: 'size/pxToRem',
-  type: 'value',
-  transitive: true,
-  filter: (token) => token.$type === 'dimension',
-  transform: (token) => {
-    const value = parseFloat(token.$value);
-    return `${value / 16}rem`;
+// Custom parser for Tokens Studio format
+StyleDictionary.registerParser({
+  name: 'tokens-studio-parser',
+  pattern: /\.json$/,
+  parser: ({ contents }) => {
+    const tokens = JSON.parse(contents);
+    // Convert Tokens Studio format to Style Dictionary format
+    return convertTokensStudioFormat(tokens);
   }
 });
 
-// Custom transform: px to unitless number
+// Custom transform: add px units (for web)
 StyleDictionary.registerTransform({
-  name: 'size/pxToNumber',
+  name: 'size/addPx',
   type: 'value',
   transitive: true,
-  filter: (token) => token.$type === 'dimension',
+  filter: (token) => token.type === 'number' || token.type === 'dimension',
   transform: (token) => {
-    return parseFloat(token.$value);
+    const value = parseFloat(token.value);
+    return `${value}px`;
+  }
+});
+
+// Custom transform: keep as number (for RN, Roku)
+StyleDictionary.registerTransform({
+  name: 'size/number',
+  type: 'value',
+  transitive: true,
+  filter: (token) => token.type === 'number' || token.type === 'dimension',
+  transform: (token) => {
+    return parseFloat(token.value);
   }
 });
 
@@ -125,9 +167,9 @@ StyleDictionary.registerTransform({
 StyleDictionary.registerTransform({
   name: 'color/rokuARGB',
   type: 'value',
-  filter: (token) => token.$type === 'color',
+  filter: (token) => token.type === 'color',
   transform: (token) => {
-    const hex = token.$value.replace('#', '');
+    const hex = token.value.replace('#', '');
     return `"0x${hex}FF"`;  // Add FF for alpha
   }
 });
@@ -136,22 +178,10 @@ StyleDictionary.registerTransform({
 StyleDictionary.registerTransform({
   name: 'color/androidARGB',
   type: 'value',
-  filter: (token) => token.$type === 'color',
+  filter: (token) => token.type === 'color',
   transform: (token) => {
-    const hex = token.$value.replace('#', '');
+    const hex = token.value.replace('#', '');
     return `#FF${hex}`;  // Add FF prefix for alpha
-  }
-});
-
-// Scale transform for TV (2x base sizes)
-StyleDictionary.registerTransform({
-  name: 'size/tvScale',
-  type: 'value',
-  transitive: true,
-  filter: (token) => token.$type === 'dimension',
-  transform: (token) => {
-    const value = parseFloat(token.$value);
-    return value * 2;  // 2x scale for 10-foot UI
   }
 });
 
@@ -172,8 +202,8 @@ export default {
 ```javascript
 'web-css': {
   transformGroup: 'css',
-  transforms: ['attribute/cti', 'name/kebab', 'size/pxToRem', 'color/css'],
-  buildPath: 'packages/web/dist/',
+  transforms: ['attribute/cti', 'name/kebab', 'size/addPx', 'color/css'],
+  buildPath: 'packages/web/',
   files: [
     {
       destination: 'tokens.css',
@@ -189,20 +219,33 @@ export default {
 **Output Example:**
 ```css
 :root {
-  /* Primitives */
-  --color-blue-500: #3B82F6;
-  --color-gray-900: #111827;
-  --spacing-4: 1rem;
+  /* Base Colors */
+  --color-neutral-500: #9d9c9b;
+  --color-accent-600: #16b087;
+  --color-guild-500: #c85a23;
+  --color-danger-500: #f45a3b;
 
-  /* Semantic */
-  --color-action-primary-background: var(--color-blue-500);
-  --color-text-primary: var(--color-gray-900);
-  --spacing-padding-md: var(--spacing-4);
+  /* Semantic Colors */
+  --surface-default: #ffffff;
+  --text-primary: #141414;
+  --component-button-emphasis-primary-background: #16b087;
+  --component-button-emphasis-primary-background-hover: #139973;
+
+  /* Spacing */
+  --spacing-sm: 8px;
+  --spacing-md: 10px;
+  --spacing-lg: 12px;
+  --spacing-4xl: 24px;
+
+  /* Button Sizes */
+  --button-size-md-height: 40px;
+  --button-size-md-padding-horizontal: 12px;
+  --button-size-md-border-radius: 12px;
+  --button-size-md-font-size: 14px;
 
   /* Typography */
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --line-height-normal: 1.5;
+  --font-size-body-md: 16px;
+  --font-size-heading-h1: 40px;
 }
 ```
 
@@ -213,8 +256,8 @@ export default {
 ```javascript
 'react-native': {
   transformGroup: 'react-native',
-  transforms: ['attribute/cti', 'name/camel', 'size/pxToNumber', 'color/hex'],
-  buildPath: 'packages/react-native/dist/',
+  transforms: ['attribute/cti', 'name/camel', 'size/number', 'color/hex'],
+  buildPath: 'packages/react-native/src/',
   files: [
     {
       destination: 'tokens.ts',
@@ -229,47 +272,66 @@ export default {
 
 **Output Example:**
 ```typescript
-export const colorBlue500 = '#3B82F6';
-export const colorGray900 = '#111827';
-export const spacing4 = 16;
+// Base Colors
+export const colorNeutral500 = '#9d9c9b';
+export const colorAccent600 = '#16b087';
+export const colorGuild500 = '#c85a23';
 
-export const colorActionPrimaryBackground = '#3B82F6';
-export const colorTextPrimary = '#111827';
-export const spacingPaddingMd = 16;
+// Semantic Colors
+export const surfaceDefault = '#ffffff';
+export const textPrimary = '#141414';
+export const componentButtonEmphasisPrimaryBackground = '#16b087';
 
-export const fontSizeBase = 16;
-export const fontSizeLg = 18;
-export const lineHeightNormal = 1.5;
+// Spacing
+export const spacingSm = 8;
+export const spacingMd = 10;
+export const spacingLg = 12;
+export const spacing4xl = 24;
 
-// Theme object for convenience
-export const theme = {
-  colors: {
-    blue500: colorBlue500,
-    gray900: colorGray900,
-    action: {
-      primary: {
-        background: colorActionPrimaryBackground,
-      },
-    },
-    text: {
-      primary: colorTextPrimary,
-    },
+// Button Sizes
+export const buttonSizeMdHeight = 40;
+export const buttonSizeMdPaddingHorizontal = 12;
+export const buttonSizeMdBorderRadius = 12;
+export const buttonSizeMdFontSize = 14;
+
+// Nested theme object
+export const tokens = {
+  color: {
+    neutral: { 500: colorNeutral500 },
+    accent: { 600: colorAccent600 },
+    guild: { 500: colorGuild500 },
+  },
+  surface: {
+    default: surfaceDefault,
+  },
+  text: {
+    primary: textPrimary,
   },
   spacing: {
-    4: spacing4,
-    padding: {
-      md: spacingPaddingMd,
-    },
+    sm: spacingSm,
+    md: spacingMd,
+    lg: spacingLg,
+    '4xl': spacing4xl,
   },
-  typography: {
-    fontSize: {
-      base: fontSizeBase,
-      lg: fontSizeLg,
-    },
-    lineHeight: {
-      normal: lineHeightNormal,
-    },
+  button: {
+    size: {
+      md: {
+        height: buttonSizeMdHeight,
+        padding_horizontal: buttonSizeMdPaddingHorizontal,
+        border_radius: buttonSizeMdBorderRadius,
+        font_size: buttonSizeMdFontSize,
+      }
+    }
   },
+  component: {
+    button: {
+      emphasis: {
+        primary: {
+          background: componentButtonEmphasisPrimaryBackground,
+        }
+      }
+    }
+  }
 };
 ```
 
@@ -280,8 +342,8 @@ export const theme = {
 ```javascript
 'roku': {
   transformGroup: 'js',
-  transforms: ['attribute/cti', 'name/camel', 'size/pxToNumber', 'color/rokuARGB'],
-  buildPath: 'packages/roku/dist/',
+  transforms: ['attribute/cti', 'name/pascal', 'size/number', 'color/rokuARGB'],
+  buildPath: 'packages/roku/',
   files: [
     {
       destination: 'AngelTokens.brs',
@@ -296,18 +358,20 @@ export const theme = {
 StyleDictionary.registerFormat({
   name: 'brightscript/object',
   format: ({ dictionary }) => {
-    const tokens = dictionary.allTokens.reduce((acc, token) => {
-      acc[token.name] = token.value;
-      return acc;
-    }, {});
-
-    return `' Auto-generated - DO NOT EDIT
+    let output = `' Auto-generated - DO NOT EDIT
 function AngelTokens() as object
-    return ${JSON.stringify(tokens, null, 4)
-      .replace(/"/g, '"')
-      .replace(/: "/g, ': "')
-      .replace(/",/g, '",')}
+    return {
+`;
+    dictionary.allTokens.forEach(token => {
+      const value = typeof token.value === 'string'
+        ? `"${token.value}"`
+        : token.value;
+      output += `        ${token.name}: ${value}\n`;
+    });
+
+    output += `    }
 end function`;
+    return output;
   }
 });
 ```
@@ -317,21 +381,25 @@ end function`;
 ' Auto-generated - DO NOT EDIT
 function AngelTokens() as object
     return {
-        colorBlue500: "0x3B82F6FF"
-        colorGray900: "0x111827FF"
-        spacing4: 16
+        ColorNeutral500: "0x9d9c9bFF"
+        ColorAccent600: "0x16b087FF"
+        ColorGuild500: "0xc85a23FF"
 
-        ' TV-specific
-        layoutRowHeightSm: 180
-        layoutRowHeightMd: 240
-        layoutRowHeightLg: 320
-        componentCardPosterWidth: 150
-        componentCardPosterHeight: 225
-        focusRingWidth: 4
-        focusRingColor: "0x3B82F6FF"
-        focusScale: 1.05
-        safeAreaHorizontal: 48
-        safeAreaVertical: 27
+        SurfaceDefault: "0xFFFFFFFF"
+        TextPrimary: "0x141414FF"
+
+        ComponentButtonEmphasisPrimaryBackground: "0x16b087FF"
+        ComponentButtonEmphasisPrimaryBackgroundHover: "0x139973FF"
+
+        SpacingSm: 8
+        SpacingMd: 10
+        SpacingLg: 12
+        Spacing4xl: 24
+
+        ButtonSizeLgHeight: 48
+        ButtonSizeLgPaddingHorizontal: 14
+        ButtonSizeLgBorderRadius: 14
+        ButtonSizeLgFontSize: 16
     }
 end function
 ```
@@ -343,11 +411,11 @@ end function
 ```javascript
 'tvos': {
   transformGroup: 'ios-swift',
-  transforms: ['attribute/cti', 'name/camel', 'size/tvScale', 'color/UIColorSwift'],
-  buildPath: 'packages/tvos/Sources/AngelTokens/',
+  transforms: ['attribute/cti', 'name/camel', 'size/number', 'color/UIColorSwift'],
+  buildPath: 'packages/tvos/',
   files: [
     {
-      destination: 'Tokens.swift',
+      destination: 'AngelTokens.swift',
       format: 'ios-swift/class.swift',
       className: 'AngelTokens',
       options: {
@@ -365,51 +433,73 @@ import SwiftUI
 
 public struct AngelTokens {
 
-    // MARK: - Colors
-    public struct Colors {
-        public static let blue500 = Color(hex: 0x3B82F6)
-        public static let gray900 = Color(hex: 0x111827)
+    // MARK: - Base Colors
+    public struct Color {
+        public static let neutral500 = SwiftUI.Color(hex: 0x9d9c9b)
+        public static let accent600 = SwiftUI.Color(hex: 0x16b087)
+        public static let guild500 = SwiftUI.Color(hex: 0xc85a23)
+        public static let danger500 = SwiftUI.Color(hex: 0xf45a3b)
+    }
 
-        public struct Action {
-            public static let primaryBackground = Colors.blue500
-        }
+    // MARK: - Semantic Colors
+    public struct Surface {
+        public static let `default` = SwiftUI.Color.white
+    }
 
-        public struct Text {
-            public static let primary = Colors.gray900
+    public struct Text {
+        public static let primary = SwiftUI.Color(hex: 0x141414)
+        public static let secondary = SwiftUI.Color(hex: 0x5f5e5c)
+    }
+
+    // MARK: - Component Colors
+    public struct Component {
+        public struct Button {
+            public struct Emphasis {
+                public struct Primary {
+                    public static let background = Color.accent600
+                    public static let backgroundHover = SwiftUI.Color(hex: 0x139973)
+                    public static let text = SwiftUI.Color.white
+                }
+            }
         }
     }
 
-    // MARK: - Spacing (scaled for TV)
+    // MARK: - Spacing
     public struct Spacing {
-        public static let base: CGFloat = 32  // 16px * 2
-        public static let md: CGFloat = 32
-        public static let lg: CGFloat = 48
+        public static let sm: CGFloat = 8
+        public static let md: CGFloat = 10
+        public static let lg: CGFloat = 12
+        public static let xl4: CGFloat = 24
+        public static let xl9: CGFloat = 44   // TV layout
+        public static let xl12: CGFloat = 64  // TV layout
     }
 
-    // MARK: - TV Layout
-    public struct Layout {
-        public static let rowHeightSm: CGFloat = 180
-        public static let rowHeightMd: CGFloat = 240
-        public static let rowHeightLg: CGFloat = 320
-        public static let rowHeightHero: CGFloat = 480
+    // MARK: - Button Sizes (lg recommended for TV)
+    public struct Button {
+        public struct Size {
+            public struct Lg {
+                public static let height: CGFloat = 48
+                public static let paddingHorizontal: CGFloat = 14
+                public static let paddingVertical: CGFloat = 16
+                public static let borderRadius: CGFloat = 14
+                public static let fontSize: CGFloat = 16
+            }
+        }
     }
 
-    // MARK: - Focus
-    public struct Focus {
-        public static let ringWidth: CGFloat = 4
-        public static let ringColor = Colors.blue500
-        public static let scale: CGFloat = 1.05
-    }
-
-    // MARK: - Safe Area
-    public struct SafeArea {
-        public static let horizontal: CGFloat = 48
-        public static let vertical: CGFloat = 27
+    // MARK: - Typography (TV sizes)
+    public struct Font {
+        public struct Size {
+            public static let bodyMd: CGFloat = 20
+            public static let bodyLg: CGFloat = 24
+            public static let headingH1: CGFloat = 48
+            public static let headingH2: CGFloat = 40
+        }
     }
 }
 
 // MARK: - Color Extension
-extension Color {
+extension SwiftUI.Color {
     init(hex: UInt, alpha: Double = 1) {
         self.init(
             .sRGB,
@@ -430,17 +520,17 @@ extension Color {
 'android-tv': {
   transformGroup: 'android',
   transforms: ['attribute/cti', 'name/snake', 'size/pxToDp', 'color/androidARGB'],
-  buildPath: 'packages/android-tv/src/main/res/values/',
+  buildPath: 'packages/android/',
   files: [
     {
       destination: 'colors.xml',
       format: 'android/colors',
-      filter: (token) => token.$type === 'color'
+      filter: (token) => token.type === 'color'
     },
     {
       destination: 'dimens.xml',
       format: 'android/dimens',
-      filter: (token) => token.$type === 'dimension' || token.$type === 'number'
+      filter: (token) => token.type === 'number' || token.type === 'dimension'
     }
   ]
 }
@@ -451,16 +541,20 @@ extension Color {
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Auto-generated - DO NOT EDIT -->
 <resources>
-    <!-- Primitives -->
-    <color name="color_blue_500">#FF3B82F6</color>
-    <color name="color_gray_900">#FF111827</color>
+    <!-- Base Colors -->
+    <color name="color_neutral_500">#FF9d9c9b</color>
+    <color name="color_accent_600">#FF16b087</color>
+    <color name="color_guild_500">#FFc85a23</color>
+    <color name="color_danger_500">#FFf45a3b</color>
 
-    <!-- Semantic -->
-    <color name="color_action_primary_background">@color/color_blue_500</color>
-    <color name="color_text_primary">@color/color_gray_900</color>
+    <!-- Semantic Colors -->
+    <color name="surface_default">#FFFFFFFF</color>
+    <color name="text_primary">#FF141414</color>
 
-    <!-- Focus -->
-    <color name="focus_ring_color">#FF3B82F6</color>
+    <!-- Component Colors -->
+    <color name="component_button_emphasis_primary_background">#FF16b087</color>
+    <color name="component_button_emphasis_primary_background_hover">#FF139973</color>
+    <color name="component_button_emphasis_primary_text">#FFFFFFFF</color>
 </resources>
 ```
 
@@ -470,24 +564,20 @@ extension Color {
 <!-- Auto-generated - DO NOT EDIT -->
 <resources>
     <!-- Spacing -->
-    <dimen name="spacing_4">16dp</dimen>
-    <dimen name="spacing_padding_md">16dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">10dp</dimen>
+    <dimen name="spacing_lg">12dp</dimen>
+    <dimen name="spacing_4xl">24dp</dimen>
 
-    <!-- Typography -->
-    <dimen name="font_size_base">16sp</dimen>
-    <dimen name="font_size_lg">18sp</dimen>
+    <!-- Button Sizes (lg for TV) -->
+    <dimen name="button_size_lg_height">48dp</dimen>
+    <dimen name="button_size_lg_padding_horizontal">14dp</dimen>
+    <dimen name="button_size_lg_border_radius">14dp</dimen>
+    <dimen name="button_size_lg_font_size">16sp</dimen>
 
-    <!-- TV Layout -->
-    <dimen name="layout_row_height_sm">180dp</dimen>
-    <dimen name="layout_row_height_md">240dp</dimen>
-    <dimen name="layout_row_height_lg">320dp</dimen>
-
-    <!-- Focus -->
-    <dimen name="focus_ring_width">4dp</dimen>
-
-    <!-- Safe Area -->
-    <dimen name="safe_area_horizontal">48dp</dimen>
-    <dimen name="safe_area_vertical">27dp</dimen>
+    <!-- Typography (TV sizes) -->
+    <dimen name="font_size_body_md">20sp</dimen>
+    <dimen name="font_size_heading_h1">48sp</dimen>
 </resources>
 ```
 
@@ -498,50 +588,15 @@ extension Color {
 ```javascript
 'xbox': {
   transformGroup: 'js',
-  transforms: ['attribute/cti', 'name/pascal', 'size/pxToNumber', 'color/androidARGB'],
-  buildPath: 'packages/xbox/Resources/',
+  transforms: ['attribute/cti', 'name/pascal', 'size/number', 'color/androidARGB'],
+  buildPath: 'packages/xbox/',
   files: [
     {
-      destination: 'AngelTokens.xaml',
+      destination: 'Tokens.xaml',
       format: 'xaml/resourceDictionary'  // Custom format
     }
   ]
 }
-```
-
-**Custom XAML Format:**
-```javascript
-StyleDictionary.registerFormat({
-  name: 'xaml/resourceDictionary',
-  format: ({ dictionary }) => {
-    const colorTokens = dictionary.allTokens.filter(t => t.$type === 'color');
-    const sizeTokens = dictionary.allTokens.filter(t =>
-      t.$type === 'dimension' || t.$type === 'number'
-    );
-
-    let output = `<!-- Auto-generated - DO NOT EDIT -->
-<ResourceDictionary
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:sys="clr-namespace:System;assembly=mscorlib">
-
-    <!-- Colors -->
-`;
-
-    colorTokens.forEach(token => {
-      output += `    <Color x:Key="${token.name}">${token.value}</Color>\n`;
-    });
-
-    output += `\n    <!-- Dimensions -->\n`;
-
-    sizeTokens.forEach(token => {
-      output += `    <sys:Double x:Key="${token.name}">${token.value}</sys:Double>\n`;
-    });
-
-    output += `\n</ResourceDictionary>`;
-    return output;
-  }
-});
 ```
 
 **Output Example:**
@@ -552,20 +607,29 @@ StyleDictionary.registerFormat({
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-    <!-- Colors -->
-    <Color x:Key="ColorBlue500">#FF3B82F6</Color>
-    <Color x:Key="ColorGray900">#FF111827</Color>
-    <Color x:Key="ColorActionPrimaryBackground">#FF3B82F6</Color>
-    <Color x:Key="FocusRingColor">#FF3B82F6</Color>
+    <!-- Base Colors -->
+    <Color x:Key="ColorNeutral500">#FF9d9c9b</Color>
+    <Color x:Key="ColorAccent600">#FF16b087</Color>
+    <Color x:Key="ColorGuild500">#FFc85a23</Color>
 
-    <!-- Dimensions -->
-    <sys:Double x:Key="Spacing4">16</sys:Double>
-    <sys:Double x:Key="SpacingPaddingMd">16</sys:Double>
-    <sys:Double x:Key="LayoutRowHeightSm">180</sys:Double>
-    <sys:Double x:Key="LayoutRowHeightMd">240</sys:Double>
-    <sys:Double x:Key="LayoutRowHeightLg">320</sys:Double>
-    <sys:Double x:Key="FocusRingWidth">4</sys:Double>
-    <sys:Double x:Key="FocusScale">1.05</sys:Double>
+    <!-- Semantic Colors -->
+    <Color x:Key="SurfaceDefault">#FFFFFFFF</Color>
+    <Color x:Key="TextPrimary">#FF141414</Color>
+
+    <!-- Component Colors -->
+    <Color x:Key="ComponentButtonEmphasisPrimaryBackground">#FF16b087</Color>
+    <Color x:Key="ComponentButtonEmphasisPrimaryText">#FFFFFFFF</Color>
+
+    <!-- Spacing -->
+    <sys:Double x:Key="SpacingSm">8</sys:Double>
+    <sys:Double x:Key="SpacingMd">10</sys:Double>
+    <sys:Double x:Key="SpacingLg">12</sys:Double>
+    <sys:Double x:Key="Spacing4xl">24</sys:Double>
+
+    <!-- Button Sizes -->
+    <sys:Double x:Key="ButtonSizeLgHeight">48</sys:Double>
+    <sys:Double x:Key="ButtonSizeLgPaddingHorizontal">14</sys:Double>
+    <sys:Double x:Key="ButtonSizeLgBorderRadius">14</sys:Double>
 
 </ResourceDictionary>
 ```
@@ -577,8 +641,8 @@ StyleDictionary.registerFormat({
 ```javascript
 'web-tv': {
   transformGroup: 'css',
-  transforms: ['attribute/cti', 'name/kebab', 'size/pxToNumber', 'color/css'],
-  buildPath: 'packages/web-tv/dist/',
+  transforms: ['attribute/cti', 'name/camel', 'size/number', 'color/css'],
+  buildPath: 'packages/web-tv/',
   files: [
     {
       destination: 'tokens.css',
@@ -592,22 +656,61 @@ StyleDictionary.registerFormat({
 }
 ```
 
+**Output Example (tokens.js):**
+```javascript
+// Auto-generated - DO NOT EDIT
+
+// Base Colors
+export const colorAccent600 = '#16b087';
+export const colorGuild500 = '#c85a23';
+
+// Semantic Colors
+export const surfaceDefault = '#ffffff';
+export const textPrimary = '#141414';
+export const componentButtonEmphasisPrimaryBackground = '#16b087';
+
+// Spacing
+export const spacingSm = 8;
+export const spacingMd = 10;
+export const spacing4xl = 24;
+export const spacing9xl = 44;  // TV layout
+export const spacing12xl = 64; // TV layout
+
+// Button Sizes (lg for TV)
+export const buttonSizeLgHeight = 48;
+export const buttonSizeLgPaddingHorizontal = 14;
+export const buttonSizeLgFontSize = 16;
+
+// Typography (TV sizes from typography/tv.json)
+export const fontSizeBodyMd = 20;
+export const fontSizeBodyLg = 24;
+export const fontSizeHeadingH1 = 48;
+```
+
 ---
 
-## Special Transformations
-
-### Reference Resolution
+## Reference Resolution
 
 Tokens can reference other tokens. Style Dictionary resolves these automatically:
 
 ```json
-// Input
+// Input (color_theme/light.json)
 {
-  "color": {
-    "blue": { "500": { "$value": "#3B82F6" } },
-    "action": {
-      "primary": {
-        "background": { "$value": "{color.blue.500}" }  // Reference
+  "surface": {
+    "default": {
+      "value": "{color.white.50}",
+      "type": "color"
+    }
+  },
+  "component": {
+    "button": {
+      "emphasis": {
+        "primary": {
+          "background": {
+            "value": "{color.accent.600}",
+            "type": "color"
+          }
+        }
       }
     }
   }
@@ -617,45 +720,54 @@ Tokens can reference other tokens. Style Dictionary resolves these automatically
 ```css
 /* Output (CSS with outputReferences: true) */
 :root {
-  --color-blue-500: #3B82F6;
-  --color-action-primary-background: var(--color-blue-500);  /* Reference preserved */
+  --color-accent-600: #16b087;
+  --component-button-emphasis-primary-background: var(--color-accent-600);
 }
 ```
 
 ```typescript
 // Output (TypeScript with outputReferences: false)
-export const colorBlue500 = '#3B82F6';
-export const colorActionPrimaryBackground = '#3B82F6';  // Value resolved
+export const colorAccent600 = '#16b087';
+export const componentButtonEmphasisPrimaryBackground = '#16b087';  // Resolved
 ```
 
 ---
 
-### TV Scaling Logic
+## Typography Viewport Selection
 
-TV apps use larger values for 10-foot UI. The scaling logic:
+The build process selects the appropriate typography file based on platform:
 
-| Token Type | Base Value | TV Scaled Value | Multiplier |
-|------------|------------|-----------------|------------|
-| Font sizes | 16px | 32px | 2x |
-| Spacing | 16px | 16px | 1x (no change) |
-| Border radius | 8px | 12px | 1.5x |
-| Focus ring | 2px | 4px | 2x |
-
-**Implementation:**
 ```javascript
-StyleDictionary.registerTransform({
-  name: 'size/tvScale',
-  type: 'value',
-  filter: (token) => {
-    // Only scale typography
-    return token.path.includes('typography') || token.path.includes('fontSize');
-  },
-  transform: (token) => {
-    const value = parseFloat(token.$value);
-    return value * 2;
+// Build configuration selects typography source
+const getTypographySource = (platform) => {
+  switch (platform) {
+    case 'react-native':
+      return 'tokens/typography/mobile.json';  // or detect device
+    case 'web':
+      return 'tokens/typography/desktop.json';
+    case 'roku':
+    case 'tvos':
+    case 'android-tv':
+    case 'xbox':
+    case 'web-tv':
+      return 'tokens/typography/tv.json';
+    default:
+      return 'tokens/typography/desktop.json';
   }
-});
+};
 ```
+
+**Typography Scale (Desktop vs TV):**
+
+| Token | Desktop | TV | Scale |
+|-------|---------|-----|-------|
+| body.xxs | 10 | 14 | 1.4x |
+| body.xs | 12 | 16 | 1.33x |
+| body.sm | 14 | 18 | 1.29x |
+| body.md | 16 | 20 | 1.25x |
+| body.lg | 18 | 24 | 1.33x |
+| heading.h1 | 40 | 48 | 1.2x |
+| display.lg | 64 | 76 | 1.19x |
 
 ---
 
@@ -663,21 +775,35 @@ StyleDictionary.registerTransform({
 
 Before transformation, tokens are validated:
 
-1. **Schema Validation** - JSON structure matches W3C DTCG spec
+1. **Format Validation** - JSON structure matches Tokens Studio format
 2. **Reference Validation** - All `{token.references}` resolve
-3. **Type Validation** - Values match declared `$type`
-4. **Naming Validation** - Names follow conventions
+3. **Type Validation** - Values match declared `type`
+4. **Naming Validation** - Names follow conventions (underscores for states)
 
 ```javascript
 // Validation script
-import Ajv from 'ajv';
-import schema from './dtcg-schema.json';
+function validateTokens(tokens) {
+  const errors = [];
 
-const validate = new Ajv().compile(schema);
+  // Check for valid structure
+  Object.entries(tokens).forEach(([key, value]) => {
+    if (value.value !== undefined && value.type === undefined) {
+      errors.push(`Token "${key}" missing type`);
+    }
+    if (value.type === 'color' && !isValidHex(value.value)) {
+      errors.push(`Token "${key}" has invalid color value`);
+    }
+  });
 
-if (!validate(tokens)) {
-  console.error('Token validation failed:', validate.errors);
-  process.exit(1);
+  // Check references resolve
+  const allRefs = findReferences(tokens);
+  allRefs.forEach(ref => {
+    if (!resolveReference(ref, tokens)) {
+      errors.push(`Unresolved reference: ${ref}`);
+    }
+  });
+
+  return errors;
 }
 ```
 
