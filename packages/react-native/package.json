@@ -1,0 +1,20 @@
+{
+  "name": "@angel/tokens-react-native",
+  "version": "1.0.0",
+  "description": "Angel Design Tokens for React Native",
+  "main": "src/tokens.ts",
+  "types": "src/tokens.ts",
+  "files": [
+    "src"
+  ],
+  "keywords": [
+    "design-tokens",
+    "react-native",
+    "angel"
+  ],
+  "author": "Angel Design System Team",
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

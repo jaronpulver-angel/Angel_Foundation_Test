@@ -1,0 +1,169 @@
+name: Build and Publish Tokens
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'tokens/**/*.json'
+      - 'build.mjs'
+      - 'package.json'
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+env:
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+jobs:
+  build:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for version detection
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Validate tokens
+        run: pnpm run validate
+
+      - name: Determine version bump
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "bump=${{ github.event.inputs.version_bump }}" >> $GITHUB_OUTPUT
+          else
+            # Check commit messages for version hints
+            COMMITS=$(git log --oneline ${{ github.event.before }}..${{ github.sha }} 2>/dev/null || echo "")
+
+            if echo "$COMMITS" | grep -qiE "BREAKING|BREAKING CHANGE"; then
+              echo "bump=major" >> $GITHUB_OUTPUT
+            elif echo "$COMMITS" | grep -qiE "^feat:|^feature:"; then
+              echo "bump=minor" >> $GITHUB_OUTPUT
+            else
+              echo "bump=patch" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Bump version
+        run: |
+          # Get current version
+          CURRENT=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT"
+
+          # Bump version
+          npm version ${{ steps.version.outputs.bump }} --no-git-tag-version
+
+          NEW=$(node -p "require('./package.json').version")
+          echo "New version: $NEW"
+          echo "NEW_VERSION=$NEW" >> $GITHUB_ENV
+
+          # Update all package versions
+          for pkg in packages/*/package.json; do
+            if [ -f "$pkg" ]; then
+              node -e "
+                const fs = require('fs');
+                const pkg = JSON.parse(fs.readFileSync('$pkg', 'utf-8'));
+                pkg.version = '$NEW';
+                fs.writeFileSync('$pkg', JSON.stringify(pkg, null, 2) + '\n');
+              "
+            fi
+          done
+
+      - name: Build all platforms
+        run: pnpm run build
+
+      - name: List generated files
+        run: |
+          echo "Generated files:"
+          find packages -type f -name "*.ts" -o -name "*.css" -o -name "*.scss" -o -name "*.brs" -o -name "*.swift" -o -name "*.xml" -o -name "*.xaml" -o -name "*.js" | head -20
+
+      - name: Publish packages
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # Publish each package
+          for dir in packages/*/; do
+            if [ -f "${dir}package.json" ]; then
+              echo "Publishing ${dir}..."
+              cd "$dir"
+              npm publish --access restricted || echo "Failed to publish ${dir}"
+              cd ../..
+            fi
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create git tag
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          git commit -m "chore: release v${{ env.NEW_VERSION }}" || echo "No changes to commit"
+          git tag "v${{ env.NEW_VERSION }}"
+          git push origin main --tags
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-tokens-v${{ env.NEW_VERSION }}
+          path: |
+            packages/*/
+            !packages/*/node_modules/
+
+      - name: Notify Slack
+        if: success() && github.ref == 'refs/heads/main'
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "🎨 Design Tokens v${{ env.NEW_VERSION }} published!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Angel Design Tokens v${{ env.NEW_VERSION }}* has been published!\n\nPlatform packages are now available. Update your dependencies to get the latest tokens."
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        continue-on-error: true
+
+      - name: Trigger platform updates
+        if: github.ref == 'refs/heads/main'
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: ${{ github.repository_owner }}/angel-mobile-app
+          event-type: tokens-updated
+          client-payload: '{"version": "${{ env.NEW_VERSION }}"}'
+        continue-on-error: true

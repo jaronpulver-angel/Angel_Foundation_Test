@@ -1,0 +1,66 @@
+{
+  "spacing": {
+    "4xs": { "value": 1, "type": "number" },
+    "3xs": { "value": 2, "type": "number" },
+    "2xs": { "value": 4, "type": "number" },
+    "xs": { "value": 6, "type": "number" },
+    "sm": { "value": 8, "type": "number" },
+    "md": { "value": 10, "type": "number" },
+    "lg": { "value": 12, "type": "number" },
+    "xl": { "value": 14, "type": "number" },
+    "2xl": { "value": 16, "type": "number" },
+    "3xl": { "value": 20, "type": "number" },
+    "4xl": { "value": 24, "type": "number" },
+    "5xl": { "value": 28, "type": "number" },
+    "6xl": { "value": 32, "type": "number" },
+    "7xl": { "value": 36, "type": "number" },
+    "8xl": { "value": 40, "type": "number" },
+    "9xl": { "value": 44, "type": "number" },
+    "10xl": { "value": 48, "type": "number" },
+    "11xl": { "value": 56, "type": "number" },
+    "12xl": { "value": 64, "type": "number" },
+    "13xl": { "value": 72, "type": "number" },
+    "14xl": { "value": 80, "type": "number" },
+    "15xl": { "value": 96, "type": "number" },
+    "16xl": { "value": 112, "type": "number" },
+    "17xl": { "value": 128, "type": "number" },
+    "18xl": { "value": 144, "type": "number" },
+    "19xl": { "value": 160, "type": "number" },
+    "20xl": { "value": 176, "type": "number" },
+    "21xl": { "value": 192, "type": "number" },
+    "22xl": { "value": 224, "type": "number" },
+    "23xl": { "value": 256, "type": "number" },
+    "24xl": { "value": 288, "type": "number" },
+    "25xl": { "value": 320, "type": "number" },
+    "26xl": { "value": 352, "type": "number" },
+    "27xl": { "value": 384, "type": "number" }
+  },
+  "border_radius": {
+    "rounded_none": { "value": 0, "type": "number" },
+    "rounded_xs": { "value": 2, "type": "number" },
+    "rounded_sm": { "value": 4, "type": "number" },
+    "rounded_md": { "value": 6, "type": "number" },
+    "rounded_lg": { "value": 8, "type": "number" },
+    "rounded_xl": { "value": 12, "type": "number" },
+    "rounded_2xl": { "value": 16, "type": "number" },
+    "rounded_3xl": { "value": 24, "type": "number" },
+    "rounded_full": { "value": 9999, "type": "number" }
+  },
+  "viewport": {
+    "mobile": {
+      "min": { "value": 0, "type": "number" },
+      "max": { "value": 767, "type": "number" }
+    },
+    "tablet": {
+      "min": { "value": 768, "type": "number" },
+      "max": { "value": 1023, "type": "number" }
+    },
+    "desktop": {
+      "min": { "value": 1024, "type": "number" },
+      "max": { "value": 1919, "type": "number" }
+    },
+    "tv": {
+      "min": { "value": 1920, "type": "number" }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "font": {
+    "family": {
+      "body": { "value": "Whitney SSm", "type": "fontFamily" },
+      "heading": { "value": "Whitney SSm", "type": "fontFamily" },
+      "mono": { "value": "SF Mono", "type": "fontFamily" }
+    },
+    "weight": {
+      "regular": { "value": 400, "type": "number" },
+      "medium": { "value": 500, "type": "number" },
+      "semibold": { "value": 600, "type": "number" },
+      "bold": { "value": 700, "type": "number" }
+    },
+    "size": {
+      "body": {
+        "xxs": { "value": 10, "type": "number" },
+        "xs": { "value": 12, "type": "number" },
+        "sm": { "value": 14, "type": "number" },
+        "md": { "value": 16, "type": "number" },
+        "lg": { "value": 18, "type": "number" }
+      },
+      "heading": {
+        "h6": { "value": 16, "type": "number" },
+        "h5": { "value": 18, "type": "number" },
+        "h4": { "value": 20, "type": "number" },
+        "h3": { "value": 24, "type": "number" },
+        "h2": { "value": 28, "type": "number" },
+        "h1": { "value": 32, "type": "number" }
+      },
+      "display": {
+        "sm": { "value": 36, "type": "number" },
+        "md": { "value": 44, "type": "number" },
+        "lg": { "value": 52, "type": "number" }
+      }
+    },
+    "line_height": {
+      "body": {
+        "xxs": { "value": 14, "type": "number" },
+        "xs": { "value": 16, "type": "number" },
+        "sm": { "value": 20, "type": "number" },
+        "md": { "value": 24, "type": "number" },
+        "lg": { "value": 28, "type": "number" }
+      },
+      "heading": {
+        "h6": { "value": 22, "type": "number" },
+        "h5": { "value": 24, "type": "number" },
+        "h4": { "value": 28, "type": "number" },
+        "h3": { "value": 32, "type": "number" },
+        "h2": { "value": 36, "type": "number" },
+        "h1": { "value": 40, "type": "number" }
+      },
+      "display": {
+        "sm": { "value": 44, "type": "number" },
+        "md": { "value": 52, "type": "number" },
+        "lg": { "value": 60, "type": "number" }
+      }
+    },
+    "letter_spacing": {
+      "tight": { "value": -0.02, "type": "number" },
+      "normal": { "value": 0, "type": "number" },
+      "wide": { "value": 0.02, "type": "number" }
+    }
+  }
+}

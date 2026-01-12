@@ -1,0 +1,32 @@
+{
+  "name": "@angel/design-tokens",
+  "version": "1.0.0",
+  "description": "Angel Design Token System - Single source of truth for all platforms",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "build:watch": "node build.mjs --watch",
+    "validate": "node scripts/validate-format.js && node scripts/validate-naming.js",
+    "validate:format": "node scripts/validate-format.js",
+    "validate:naming": "node scripts/validate-naming.js",
+    "check:breaking": "node scripts/check-breaking.js",
+    "clean": "rm -rf packages/*/dist packages/*/*.generated.*",
+    "test": "node --test scripts/*.test.js"
+  },
+  "keywords": [
+    "design-tokens",
+    "style-dictionary",
+    "figma",
+    "tokens-studio"
+  ],
+  "author": "Angel Design System Team",
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "style-dictionary": "^4.1.0",
+    "@tokens-studio/sd-transforms": "^1.2.0"
+  }
+}

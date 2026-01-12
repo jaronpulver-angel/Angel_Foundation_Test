@@ -1,0 +1,22 @@
+{
+  "name": "@angel/tokens-web-tv",
+  "version": "1.0.0",
+  "description": "Angel Design Tokens for Web TV platforms (Vizio SmartCast, XumoTV)",
+  "main": "tokens.js",
+  "files": [
+    "tokens.css",
+    "tokens.js"
+  ],
+  "keywords": [
+    "design-tokens",
+    "web-tv",
+    "vizio",
+    "xumo",
+    "angel"
+  ],
+  "author": "Angel Design System Team",
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

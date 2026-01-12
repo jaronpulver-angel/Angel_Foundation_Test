@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs (generated files)
+packages/react-native/src/tokens.ts
+packages/web/tokens.css
+packages/web/tokens.scss
+packages/roku/AngelTokens.brs
+packages/tvos/AngelTokens.swift
+packages/android/colors.xml
+packages/android/dimens.xml
+packages/xbox/Tokens.xaml
+packages/web-tv/tokens.css
+packages/web-tv/tokens.js
+
+# Baseline for breaking change detection (generated)
+tokens-baseline/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Lock files (optional - remove if you want to commit)
+# pnpm-lock.yaml

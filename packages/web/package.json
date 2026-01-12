@@ -1,0 +1,21 @@
+{
+  "name": "@angel/tokens-web",
+  "version": "1.0.0",
+  "description": "Angel Design Tokens for Web (CSS/SCSS)",
+  "main": "tokens.css",
+  "files": [
+    "tokens.css",
+    "tokens.scss"
+  ],
+  "keywords": [
+    "design-tokens",
+    "css",
+    "scss",
+    "angel"
+  ],
+  "author": "Angel Design System Team",
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "restricted"
+  }
+}
