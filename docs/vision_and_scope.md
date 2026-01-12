@@ -27,21 +27,21 @@ The Angel Design Token System is the single source of truth for all visual desig
 
 ---
 
-## Long-Term Goals
+## Roadmap
 
-### Year 1: Foundation
+### Phase 1: Foundation
 - [ ] Establish token pipeline (Figma → GitHub → All Platforms)
 - [ ] Define core token categories (colors, typography, spacing, component sizing)
 - [ ] Create developer consumption guides for all 8 platforms
 - [ ] Implement CI/CD automation for token distribution
 
-### Year 2: Expansion
+### Phase 2: Expansion
 - [ ] Add more component tokens (cards, inputs, navigation)
 - [ ] Implement dark mode / light mode theming
 - [ ] Create visual regression testing for token changes
 - [ ] Build custom Figma plugin for enhanced workflow
 
-### Year 3: Maturity
+### Phase 3: Maturity
 - [ ] Real-time sync (no manual export)
 - [ ] Token analytics (usage tracking across platforms)
 - [ ] Design system health dashboard
