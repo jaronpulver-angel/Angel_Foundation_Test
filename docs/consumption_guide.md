@@ -502,6 +502,67 @@ val paddingMd = resources.getDimensionPixelSize(R.dimen.spacing_md)  // 10dp
 
 ---
 
+## Samsung/LG Smart TV (JavaScript)
+
+Samsung (Tizen) and LG (webOS) Smart TVs use web technologies, sharing the same token package as other web-based TV platforms.
+
+### Installation
+
+```bash
+npm install @angel/tokens-web-tv
+```
+
+### Usage (Tizen/webOS)
+
+```javascript
+import tokens from '@angel/tokens-web-tv';
+
+// Samsung Tizen or LG webOS app
+const styles = {
+  button: {
+    backgroundColor: tokens.componentButtonEmphasisPrimaryBackground,
+    color: tokens.componentButtonEmphasisPrimaryText,
+    height: tokens.buttonSizeLgHeight,  // 48
+    paddingLeft: tokens.buttonSizeLgPaddingHorizontal,  // 14
+    paddingRight: tokens.buttonSizeLgPaddingHorizontal,
+    borderRadius: tokens.buttonSizeLgBorderRadius,  // 14
+    fontSize: tokens.fontSizeBodyMd,  // 20 (TV size)
+  },
+};
+```
+
+### CSS Variables (Alternative)
+
+```css
+@import '@angel/tokens-web-tv/tokens.css';
+
+.card {
+  background-color: var(--surface-default);
+  border-radius: var(--border-radius-rounded-xl);
+  padding: var(--spacing-4xl);  /* 24px */
+}
+
+.card-title {
+  color: var(--text-primary);
+  font-size: var(--font-size-heading-h3);  /* 36px for TV */
+}
+```
+
+### Platform Detection
+
+```javascript
+import tokens from '@angel/tokens-web-tv';
+
+// Detect platform for any platform-specific adjustments
+const isTizen = typeof tizen !== 'undefined';
+const isWebOS = typeof webOS !== 'undefined';
+
+// Tokens work the same on both platforms
+const buttonHeight = tokens.buttonSizeLgHeight;
+```
+
+---
+
 ## Vizio SmartCast / XumoTV (JavaScript)
 
 ### Installation

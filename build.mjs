@@ -2,7 +2,7 @@
  * Angel Design Token Build System
  *
  * Transforms Tokens Studio exports from Figma into platform-specific outputs
- * for 8 platforms: React Native, React Web, Roku, tvOS, Android TV, Xbox, Vizio, XumoTV
+ * for 9 platforms: React Native, React Web, Roku, tvOS, Android TV, Xbox, Samsung/LG, Vizio, XumoTV
  */
 
 import StyleDictionary from 'style-dictionary';
@@ -492,7 +492,7 @@ const config = {
     },
 
     // -------------------------------------------------------------------------
-    // Web TV (Vizio, XumoTV) - CSS
+    // Web TV (Samsung/LG, Vizio, XumoTV) - CSS
     // -------------------------------------------------------------------------
     'web-tv-css': {
       transformGroup: 'tokens-studio',
@@ -518,7 +518,7 @@ const config = {
     },
 
     // -------------------------------------------------------------------------
-    // Web TV (Vizio, XumoTV) - JavaScript
+    // Web TV (Samsung/LG, Vizio, XumoTV) - JavaScript
     // -------------------------------------------------------------------------
     'web-tv-js': {
       transformGroup: 'tokens-studio',

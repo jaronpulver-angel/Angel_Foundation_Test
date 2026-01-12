@@ -52,6 +52,7 @@ npm install @angel/tokens-web
 | tvOS | `AngelTokens (SPM)` | [Guide](./docs/consumption_guide.md#tvos-swift) |
 | Android TV | `angel-tokens (Maven)` | [Guide](./docs/consumption_guide.md#android-tv-kotlin) |
 | Xbox | `AngelTokens (NuGet)` | [Guide](./docs/consumption_guide.md#xbox-cxaml) |
+| Samsung/LG | `@angel/tokens-web-tv` | [Guide](./docs/consumption_guide.md#samsunglg-smart-tv-javascript) |
 | Vizio/Xumo | `@angel/tokens-web-tv` | [Guide](./docs/consumption_guide.md#vizio-smartcast--xumotv-javascript) |
 
 ---

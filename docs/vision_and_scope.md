@@ -8,7 +8,7 @@ The Angel Design Token System is the single source of truth for all visual desig
 
 ## Vision Statement
 
-> **One design change in Figma automatically propagates to all 8 platforms, ensuring pixel-perfect consistency across every Angel experience.**
+> **One design change in Figma automatically propagates to all 9 platforms, ensuring pixel-perfect consistency across every Angel experience.**
 
 ---
 
@@ -22,6 +22,7 @@ The Angel Design Token System is the single source of truth for all visual desig
 | **Apple tvOS** | Swift | `.swift` extensions | Apple TV app |
 | **Android TV** | Kotlin/Java | `colors.xml`, `dimens.xml` | Fire TV, Fire Stick |
 | **Xbox** | C#/XAML | `ResourceDictionary.xaml` | Xbox app |
+| **Samsung/LG Smart TV** | JavaScript | CSS Variables, JS | Samsung Tizen, LG webOS apps |
 | **Vizio SmartCast** | JavaScript | CSS Variables, JS | Vizio TV app |
 | **XumoTV** | JavaScript | CSS Variables, JS | Xumo TV app |
 
@@ -32,7 +33,7 @@ The Angel Design Token System is the single source of truth for all visual desig
 ### Phase 1: Foundation
 - [ ] Establish token pipeline (Figma → GitHub → All Platforms)
 - [ ] Define core token categories (colors, typography, spacing, component sizing)
-- [ ] Create developer consumption guides for all 8 platforms
+- [ ] Create developer consumption guides for all 9 platforms
 - [ ] Implement CI/CD automation for token distribution
 
 ### Phase 2: Expansion

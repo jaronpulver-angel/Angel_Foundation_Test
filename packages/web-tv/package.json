@@ -1,7 +1,7 @@
 {
   "name": "@angel/tokens-web-tv",
   "version": "1.0.0",
-  "description": "Angel Design Tokens for Web TV platforms (Vizio SmartCast, XumoTV)",
+  "description": "Angel Design Tokens for Web TV platforms (Samsung Tizen, LG webOS, Vizio SmartCast, XumoTV)",
   "main": "tokens.js",
   "files": [
     "tokens.css",
@@ -10,6 +10,10 @@
   "keywords": [
     "design-tokens",
     "web-tv",
+    "samsung",
+    "tizen",
+    "lg",
+    "webos",
     "vizio",
     "xumo",
     "angel"

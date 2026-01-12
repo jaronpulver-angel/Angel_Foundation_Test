@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document explains how design tokens are transformed from their source format (Tokens Studio JSON exported from Figma) into platform-specific outputs. Angel supports 8 platforms, each requiring different output formats.
+This document explains how design tokens are transformed from their source format (Tokens Studio JSON exported from Figma) into platform-specific outputs. Angel supports 9 platforms, each requiring different output formats.
 
 ---
 

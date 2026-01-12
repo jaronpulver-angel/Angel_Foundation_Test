@@ -330,6 +330,29 @@ extension AngelTokens {
 <dimen name="font_size_body_md">20sp</dimen>  <!-- TV size -->
 ```
 
+### Web TV (Samsung/LG, Vizio, Xumo)
+```javascript
+// JavaScript (tokens.js)
+export const colorNeutral500 = '#9d9c9b';
+export const colorAccent600 = '#16b087';
+export const spacingSm = 8;
+export const spacingMd = 10;
+export const buttonSizeLgHeight = 48;  // lg recommended for TV
+export const fontSizeBodyMd = 20;  // TV size
+```
+
+```css
+/* CSS Variables (tokens.css) */
+:root {
+  --color-neutral-500: #9d9c9b;
+  --color-accent-600: #16b087;
+  --spacing-sm: 8px;
+  --spacing-md: 10px;
+  --button-size-lg-height: 48px;
+  --font-size-body-md: 20px;  /* TV size */
+}
+```
+
 ---
 
 ## Related Documents

@@ -1688,7 +1688,7 @@ When you update tokens in Figma and merge the PR, **all apps automatically rebui
 │  │                    AUTOMATIC (No Developer Action)                      │    │
 │  ├─────────────────────────────────────────────────────────────────────────┤    │
 │  │                                                                         │    │
-│  │  1. GitHub Action: Build tokens for all 8 platforms (~2 min)            │    │
+│  │  1. GitHub Action: Build tokens for all 9 platforms (~2 min)            │    │
 │  │                           │                                             │    │
 │  │                           ▼                                             │    │
 │  │  2. GitHub Action: Trigger app rebuild workflows                        │    │
@@ -2166,7 +2166,7 @@ jobs:
 │                                │                                            │
 │                                ▼                                            │
 │  5. AUTOMATIC BUILD (GitHub Actions)                                        │
-│     • Tokens transformed for all 8 platforms                                │
+│     • Tokens transformed for all 9 platforms                                │
 │     • Fonts copied to each package                                          │
 │     • Build artifacts available for preview                                 │
 │                                │                                            │
@@ -2362,7 +2362,7 @@ element.style.color = AngelTokens.colors.textPrimary;
 - [ ] Verify font copying in build
 
 ### Phase 4: Build Pipeline
-- [ ] Configure Style Dictionary for all 8 platforms
+- [ ] Configure Style Dictionary for all 9 platforms
 - [ ] Create GitHub Actions workflow
 - [ ] Test token generation locally
 - [ ] Verify all platform outputs

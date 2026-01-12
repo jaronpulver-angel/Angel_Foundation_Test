@@ -2,7 +2,7 @@
 
 ## System Architecture
 
-This document explains the complete flow of design tokens from Figma to all 8 supported platforms.
+This document explains the complete flow of design tokens from Figma to all 9 supported platforms.
 
 ---
 
@@ -319,6 +319,7 @@ Figma Variables         free plugin       to GitHub        CI/CD
             │ React Native  │                         │ Roku          │                         │ Xbox (XAML)   │
             │ React Web     │                         │ tvOS          │                         │               │
             │               │                         │ Android TV    │                         │               │
+            │               │                         │ Samsung/LG    │                         │               │
             │               │                         │ Vizio/Xumo    │                         │               │
             └───────────────┘                         └───────────────┘                         └───────────────┘
 ```
