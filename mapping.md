@@ -29,7 +29,7 @@ Quick reference for mapping Figma token names to platform-specific output names.
 | `neutral` | Grayscale for UI | `#fcfcfc` → `#141414` |
 | `white` | White + alpha | `#ffffff0d` → `#ffffff` |
 | `black` | Black + alpha | `#0000000d` → `#000000` |
-| `guild` | Brand orange | `#fff8f4` → `#200d05` |
+| `guild` | Angel Guild elements | `#fff8f4` → `#200d05` |
 | `accent` | Primary action (teal) | `#f9fefd` → `#02120e` |
 | `danger` | Error states | `#fffbfa` → `#2a0801` |
 | `warning` | Warning states | `#fffcfa` → `#250f00` |
