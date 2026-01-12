@@ -399,7 +399,7 @@ git push origin main
 
 | Event | Channel | Audience |
 |-------|---------|----------|
-| New release | #design-system (Slack) | All developers |
+| New release | #angel_design_system (Slack) | All developers |
 | Breaking change planned | Email + Slack | Platform leads |
 | Deprecation notice | Slack + PR comment | Affected teams |
 | Emergency rollback | #engineering (Slack) | All developers |

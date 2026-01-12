@@ -32,7 +32,7 @@ Common issues and solutions for the Angel Design Token system.
 
 2. **Update the plugin**
    - Go to Plugins → Manage plugins
-   - Check for updates to "Variables Export" by Kel Browner
+   - Check for updates to "Tokens Studio"
 
 3. **Check for conflicting plugins**
    - Disable other token-related plugins
@@ -547,7 +547,7 @@ Type 'number' is not assignable to type 'string'
    - [GitHub Issues](https://github.com/angel-studios/angel-design-tokens/issues)
 
 2. **Ask in Slack**
-   - #design-system channel
+   - #angel_design_system channel
 
 3. **Create a new issue**
    - Include:

@@ -58,7 +58,7 @@ Thank you for your interest in contributing to the Angel Design Token system! Th
 
 #### Step 2: Export Tokens
 
-1. Run the "Variables Export" plugin by Kel Browner (free)
+1. Run the "Tokens Studio" plugin (free)
 2. Download the generated JSON file
 3. Name it descriptively: `colors-update-brand-accent.json`
 
@@ -395,7 +395,7 @@ TIER 3: Component Sizing (in component/)
 
 ## Getting Help
 
-- **Questions about tokens**: #design-system on Slack
+- **Questions about tokens**: #angel_design_system on Slack
 - **Technical issues**: Create a GitHub issue
 - **Process questions**: Ask Design System Manager
 

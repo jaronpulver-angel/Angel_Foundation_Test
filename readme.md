@@ -63,7 +63,7 @@ Figma → Export JSON → GitHub → Style Dictionary → Platform Packages → 
 ```
 
 1. **Design** - Designers update variables in Figma
-2. **Export** - Export tokens as JSON using "Variables Export" plugin (free)
+2. **Export** - Export tokens as JSON using "Tokens Studio" plugin (free)
 3. **Upload** - Create PR with new token files
 4. **Transform** - Style Dictionary generates platform-specific outputs
 5. **Deploy** - Packages published, apps auto-rebuild
@@ -150,7 +150,7 @@ angel-design-tokens/
 ### Updating Tokens
 
 1. Make changes in Figma Variables panel
-2. Run "Variables Export" plugin by Kel Browner (free)
+2. Run "Tokens Studio" plugin (free)
 3. Download the JSON file
 4. Create a PR in this repo with the new JSON
 
@@ -191,7 +191,7 @@ npm install @angel/tokens-web@1.5.0
 ### Automatic Updates
 
 Token changes trigger automatic rebuilds. You'll receive:
-- Slack notification in #design-system
+- Slack notification in #angel_design_system
 - Auto-generated PR in your repo with updated tokens
 
 [See CI/CD details →](./docs/ci_cd_workflow.md)
@@ -209,7 +209,7 @@ We welcome contributions! See [contributing.md](./contributing.md) for:
 
 ## Support
 
-- **Questions**: #design-system on Slack
+- **Questions**: #angel_design_system on Slack
 - **Bugs**: [Create an issue](https://github.com/angel-studios/angel-design-tokens/issues)
 - **Sync problems**: See [troubleshooting.md](./troubleshooting.md)
 

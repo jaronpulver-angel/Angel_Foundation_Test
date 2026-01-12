@@ -2008,7 +2008,7 @@ jobs:
         with:
           payload: |
             {
-              "channel": "#design-system",
+              "channel": "#angel_design_system",
               "username": "Design Tokens Bot",
               "icon_emoji": ":art:",
               "blocks": [
@@ -2089,7 +2089,7 @@ jobs:
         with:
           payload: |
             {
-              "channel": "#design-system",
+              "channel": "#angel_design_system",
               "text": "✅ All web apps promoted to production!"
             }
         env:

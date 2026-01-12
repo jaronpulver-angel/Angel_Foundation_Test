@@ -126,7 +126,7 @@ This document explains the complete flow of design tokens from Figma to all 8 su
        │                                                   │
 ```
 
-**Plugin:** "Variables Export" by Kel Browner (free)
+**Plugin:** "Tokens Studio" (free)
 
 ---
 
@@ -294,7 +294,7 @@ angel-design-tokens/
          │
          ▼
 ┌─────────────────┐
-│ Slack Notify    │ ← Alert #design-system channel
+│ Slack Notify    │ ← Alert #angel_design_system channel
 └─────────────────┘
 ```
 
