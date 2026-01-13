@@ -2,23 +2,23 @@
   "font": {
     "family": {
       "heading": {
-        "value": "Whitney SSm",
+        "value": "Angel Sans",
         "type": "text"
       },
       "display": {
-        "value": "Whitney SSm",
+        "value": "Angel Sans",
         "type": "text"
       },
       "overline": {
-        "value": "Whitney SSm",
+        "value": "Angel Sans",
         "type": "text"
       },
       "body": {
-        "value": "Whitney SSm",
+        "value": "Angel Sans",
         "type": "text"
       },
       "label": {
-        "value": "Whitney SSm",
+        "value": "Angel Sans",
         "type": "text"
       }
     },
