@@ -110,11 +110,14 @@ angel-design-tokens/
 │       ├── desktop.json
 │       └── tv.json                # ~1.25x larger for 10-foot UI
 ├── fonts/                         # Font source files
-│   ├── WhitneySSm-Medium.ttf
-│   ├── WhitneySSm-Semibold.ttf
-│   ├── WhitneySSm-Bold.ttf
-│   └── web/
-│       └── WhitneySSm-Medium.woff2
+│   └── angel-sans/
+│       ├── ttf/
+│       │   ├── AngelSans-Medium.ttf
+│       │   ├── AngelSans-Semibold.ttf
+│       │   └── AngelSans-Bold.ttf
+│       ├── woff/
+│       └── woff2/
+│           └── AngelSans-Medium.woff2
 ├── packages/                      # Generated platform packages
 │   ├── react-native/
 │   ├── web/

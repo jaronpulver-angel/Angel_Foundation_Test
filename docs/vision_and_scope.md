@@ -78,7 +78,7 @@ Tokens are **design decisions** that:
 | **Semantic Colors** | `surface.default`, `text.primary`, `component.button.emphasis.primary.background` | Yes |
 | **Color Scale** | neutral.50 → neutral.1000, accent.50 → accent.1000 | Yes |
 | **Typography Scale** | Font sizes: 10, 12, 14, 16, 20, 24, 40px (per viewport) | Yes |
-| **Font Families** | `Whitney SSm` (changing to `Angel Sans`) | Yes |
+| **Font Families** | `Angel Sans` | Yes |
 | **Spacing Scale** | 4xs (1) through 27xl (384) | Yes |
 | **Border Radius** | rounded_none (0) through rounded_full (999) | Yes |
 | **Button Sizing** | height, padding, font_size, border_radius per size (xs-xl) | Yes |

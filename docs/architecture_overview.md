@@ -155,12 +155,15 @@ angel-design-tokens/
 │   └── strings/                     (future: reusable strings)
 │
 ├── fonts/                           ← Font source files
-│   ├── WhitneySSm-Medium.ttf
-│   ├── WhitneySSm-Semibold.ttf
-│   ├── WhitneySSm-Bold.ttf
-│   └── web/
-│       ├── WhitneySSm-Medium.woff2
-│       └── WhitneySSm-Bold.woff2
+│   └── angel-sans/
+│       ├── ttf/
+│       │   ├── AngelSans-Medium.ttf
+│       │   ├── AngelSans-Semibold.ttf
+│       │   └── AngelSans-Bold.ttf
+│       ├── woff/
+│       └── woff2/
+│           ├── AngelSans-Medium.woff2
+│           └── AngelSans-Bold.woff2
 │
 ├── packages/                        ← Generated outputs
 │   ├── react-native/
