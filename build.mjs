@@ -12,13 +12,89 @@ import { register } from '@tokens-studio/sd-transforms';
 register(StyleDictionary);
 
 // ============================================================================
+// COLOR PARSING UTILITIES
+// ============================================================================
+
+/**
+ * Parse any color format (hex, rgba) and return {r, g, b, a} with 0-255 values
+ * @param {string} colorValue - Color in hex (#RGB, #RRGGBB, #RRGGBBAA) or rgba() format
+ * @returns {{r: number, g: number, b: number, a: number}} - Color components (0-255)
+ */
+function parseColor(colorValue) {
+  const value = String(colorValue).trim();
+
+  // Handle rgba() format: rgba(255, 255, 255, 0.9) or rgba(0, 0, 0, 0.5)
+  const rgbaMatch = value.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/i);
+  if (rgbaMatch) {
+    return {
+      r: parseInt(rgbaMatch[1], 10),
+      g: parseInt(rgbaMatch[2], 10),
+      b: parseInt(rgbaMatch[3], 10),
+      a: rgbaMatch[4] !== undefined ? Math.round(parseFloat(rgbaMatch[4]) * 255) : 255
+    };
+  }
+
+  // Handle hex format
+  let hex = value.replace('#', '').replace(/"/g, '');
+
+  // Handle 3-char hex (#RGB -> #RRGGBB)
+  if (hex.length === 3) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+
+  // Handle 6-char hex (no alpha)
+  if (hex.length === 6) {
+    return {
+      r: parseInt(hex.slice(0, 2), 16),
+      g: parseInt(hex.slice(2, 4), 16),
+      b: parseInt(hex.slice(4, 6), 16),
+      a: 255
+    };
+  }
+
+  // Handle 8-char hex (with alpha at end: RRGGBBAA)
+  if (hex.length === 8) {
+    return {
+      r: parseInt(hex.slice(0, 2), 16),
+      g: parseInt(hex.slice(2, 4), 16),
+      b: parseInt(hex.slice(4, 6), 16),
+      a: parseInt(hex.slice(6, 8), 16)
+    };
+  }
+
+  // Fallback - return black
+  console.warn(`Could not parse color: ${colorValue}`);
+  return { r: 0, g: 0, b: 0, a: 255 };
+}
+
+/**
+ * Convert color components to hex string
+ * @param {{r: number, g: number, b: number, a: number}} color
+ * @returns {string} - Hex string without # (RRGGBBAA format)
+ */
+function toHex8(color) {
+  const toHexPart = (n) => Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0');
+  return `${toHexPart(color.r)}${toHexPart(color.g)}${toHexPart(color.b)}${toHexPart(color.a)}`;
+}
+
+/**
+ * Convert color components to ARGB hex string (alpha first)
+ * @param {{r: number, g: number, b: number, a: number}} color
+ * @returns {string} - Hex string without # (AARRGGBB format)
+ */
+function toArgbHex(color) {
+  const toHexPart = (n) => Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0');
+  return `${toHexPart(color.a)}${toHexPart(color.r)}${toHexPart(color.g)}${toHexPart(color.b)}`;
+}
+
+// ============================================================================
 // CUSTOM TRANSFORMS
 // ============================================================================
 
 /**
- * Transform: Convert hex color to Roku ARGB format
- * Input: #16b087 or #16b087FF
- * Output: "0x16b087FF"
+ * Transform: Convert any color to Roku ARGB format
+ * Input: #16b087, #16b087FF, or rgba(255, 255, 255, 0.9)
+ * Output: "0xRRGGBBAA"
  */
 StyleDictionary.registerTransform({
   name: 'color/rokuHex',
@@ -26,19 +102,16 @@ StyleDictionary.registerTransform({
   transitive: true,
   filter: (token) => token.type === 'color' || token.$type === 'color',
   transform: (token) => {
-    let hex = String(token.value || token.$value).replace('#', '');
-    // Ensure 8 characters (add FF alpha if 6 char hex)
-    if (hex.length === 6) {
-      hex = hex + 'FF';
-    }
+    const color = parseColor(token.value || token.$value);
+    const hex = toHex8(color);
     return `"0x${hex.toUpperCase()}"`;
   }
 });
 
 /**
- * Transform: Convert hex color to Android/Xbox ARGB format
- * Input: #16b087
- * Output: #FF16b087
+ * Transform: Convert any color to Android/Xbox ARGB format
+ * Input: #16b087, #16b087FF, or rgba(255, 255, 255, 0.9)
+ * Output: #AARRGGBB
  */
 StyleDictionary.registerTransform({
   name: 'color/argb',
@@ -46,15 +119,8 @@ StyleDictionary.registerTransform({
   transitive: true,
   filter: (token) => token.type === 'color' || token.$type === 'color',
   transform: (token) => {
-    let hex = String(token.value || token.$value).replace('#', '');
-    // If already 8 chars (has alpha), move alpha to front
-    if (hex.length === 8) {
-      const alpha = hex.slice(6, 8);
-      hex = alpha + hex.slice(0, 6);
-    } else {
-      // Add FF alpha prefix
-      hex = 'FF' + hex;
-    }
+    const color = parseColor(token.value || token.$value);
+    const hex = toArgbHex(color);
     return `#${hex.toUpperCase()}`;
   }
 });
@@ -211,9 +277,17 @@ public enum AngelTokens {`;
         const type = token.type || token.$type;
 
         if (type === 'color') {
-          // Convert hex to SwiftUI Color
-          const hex = String(value).replace('#', '').replace(/"/g, '');
-          body += `        public static let ${name} = Color(hex: 0x${hex.slice(0, 6)})\n`;
+          // Parse color (handles hex and rgba)
+          const color = parseColor(value);
+          const hexRgb = [color.r, color.g, color.b]
+            .map(c => c.toString(16).padStart(2, '0'))
+            .join('');
+          const alpha = (color.a / 255).toFixed(2);
+          if (color.a === 255) {
+            body += `        public static let ${name} = Color(hex: 0x${hexRgb})\n`;
+          } else {
+            body += `        public static let ${name} = Color(hex: 0x${hexRgb}, alpha: ${alpha})\n`;
+          }
         } else if (typeof value === 'number') {
           body += `        public static let ${name}: CGFloat = ${value}\n`;
         } else {
