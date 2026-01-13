@@ -171,11 +171,11 @@ Quick reference for mapping Figma token names to platform-specific output names.
 
 | Figma Token | CSS Variable | Value |
 |-------------|--------------|-------|
-| `font.family.heading` | `--font-family-heading` | "Whitney SSm" |
-| `font.family.display` | `--font-family-display` | "Whitney SSm" |
-| `font.family.body` | `--font-family-body` | "Whitney SSm" |
-| `font.family.overline` | `--font-family-overline` | "Whitney SSm" |
-| `font.family.label` | `--font-family-label` | "Whitney SSm" |
+| `font.family.heading` | `--font-family-heading` | "Angel Sans" |
+| `font.family.display` | `--font-family-display` | "Angel Sans" |
+| `font.family.body` | `--font-family-body` | "Angel Sans" |
+| `font.family.overline` | `--font-family-overline` | "Angel Sans" |
+| `font.family.label` | `--font-family-label` | "Angel Sans" |
 
 ### Font Weight
 

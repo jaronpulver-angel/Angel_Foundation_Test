@@ -27,7 +27,7 @@ All tokens use the Tokens Studio format:
 |------|-------------|---------|
 | `color` | Hex color values | `#3B82F6`, `#ffffff80` |
 | `number` | Unitless numbers | `16`, `1.5`, `-0.2` |
-| `text` | String values | `"Whitney SSm"`, `"medium"` |
+| `text` | String values | `"Angel Sans"`, `"medium"` |
 
 ---
 
@@ -412,11 +412,11 @@ Typography tokens are split by viewport: `mobile.json`, `tablet.json`, `desktop.
 {
   "font": {
     "family": {
-      "heading":  { "value": "Whitney SSm", "type": "text" },
-      "display":  { "value": "Whitney SSm", "type": "text" },
-      "overline": { "value": "Whitney SSm", "type": "text" },
-      "body":     { "value": "Whitney SSm", "type": "text" },
-      "label":    { "value": "Whitney SSm", "type": "text" }
+      "heading":  { "value": "Angel Sans", "type": "text" },
+      "display":  { "value": "Angel Sans", "type": "text" },
+      "overline": { "value": "Angel Sans", "type": "text" },
+      "body":     { "value": "Angel Sans", "type": "text" },
+      "label":    { "value": "Angel Sans", "type": "text" }
     },
     "weight": {
       "medium":   { "value": "medium", "type": "text" },
