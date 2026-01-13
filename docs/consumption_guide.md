@@ -119,14 +119,14 @@ const buttonMd = {
 ### Font Setup
 
 ```typescript
-// App.tsx - Load Whitney SSm fonts
+// App.tsx - Load Angel Sans fonts
 import { useFonts } from 'expo-font';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    'WhitneySSmMedium': require('@angel/fonts/WhitneySSm-Medium.ttf'),
-    'WhitneySSmSemibold': require('@angel/fonts/WhitneySSm-Semibold.ttf'),
-    'WhitneySSmBold': require('@angel/fonts/WhitneySSm-Bold.ttf'),
+    'AngelSans-Medium': require('@angel/fonts/AngelSans-Medium.ttf'),
+    'AngelSans-Semibold': require('@angel/fonts/AngelSans-Semibold.ttf'),
+    'AngelSans-Bold': require('@angel/fonts/AngelSans-Bold.ttf'),
   });
 
   if (!fontsLoaded) return null;
@@ -241,16 +241,16 @@ module.exports = {
 
 ```css
 @font-face {
-  font-family: 'Whitney SSm';
-  src: url('@angel/fonts/WhitneySSm-Medium.woff2') format('woff2');
+  font-family: 'Angel Sans';
+  src: url('@angel/fonts/AngelSans-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Whitney SSm';
-  src: url('@angel/fonts/WhitneySSm-Bold.woff2') format('woff2');
+  font-family: 'Angel Sans';
+  src: url('@angel/fonts/AngelSans-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
